@@ -1,0 +1,444 @@
+<title>전기화학 ROS 센서 연구 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Literature map · 2026-11 기준</span>
+  <h1>전기화학 ROS 센서 연구 지도</h1>
+  <p class="lede">활성산소종(ROS)을 전극 위의 산화·환원 전류로 읽어내는 센서가 1960년대 백금 전극에서 출발해, 세포 한 개, 뇌 속 미세전극, 땀·호흡·상처를 읽는 웨어러블까지 어떻게 넓어졌는지 정리했습니다. 침습/비침습 적용과 비침습 센서의 전극 형태·측정 방향을 중심으로 봅니다.</p>
+  <div class="species" aria-label="주요 측정 대상 화학종">
+    <span class="sp"><b>H₂O₂</b> 과산화수소 · 가장 안정, 연구의 대부분</span>
+    <span class="sp"><b>O₂•⁻</b> 초과산화 음이온 · 수명 짧음</span>
+    <span class="sp"><b>•OH</b> 하이드록실 라디칼 · 직접 검출 거의 불가</span>
+    <span class="sp"><b>ONOO⁻</b> 퍼옥시나이트라이트 (RNS)</span>
+    <span class="sp"><b>NO</b> 일산화질소 (RNS, 함께 측정)</span>
+    <span class="sp"><b>HOCl</b> 차아염소산 (호중구)</span>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 검출 원리</span>
+  <h2>센서가 ROS를 읽는 네 가지 방식</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="k">직접 산화 · 귀금속</span>
+      <h3>Pt / Au 전극</h3>
+      <p class="muted">H₂O₂를 약 +0.6 V(vs Ag/AgCl)에서 산화. 단순하지만 아스코르브산·요산·도파민 같은 간섭이 큼. 뇌 미세전극의 고전적 방식.</p>
+    </div>
+    <div class="card">
+      <span class="k">인공 퍼옥시다제</span>
+      <h3>Prussian Blue (PB)</h3>
+      <p class="muted">약 0 ~ −0.1 V에서 H₂O₂를 선택적으로 환원. 낮은 전위 덕에 간섭이 적어 웨어러블 H₂O₂ 센서의 사실상 표준. 중성·알칼리 pH에서 불안정한 것이 약점.</p>
+    </div>
+    <div class="card">
+      <span class="k">효소 · 단백질</span>
+      <h3>HRP · Cyt c · SOD</h3>
+      <p class="muted">HRP는 H₂O₂, 시토크롬 c와 SOD는 O₂•⁻ 선택 검출에 사용. 선택성이 높지만 장기 안정성·멸균 문제로 이식형에는 제약.</p>
+    </div>
+    <div class="card">
+      <span class="k">나노소재 · 나노자임</span>
+      <h3>MOF · 단일원자 촉매 · MXene</h3>
+      <p class="muted">효소를 모사하는 무기 촉매(Fe–N–C, Mn₃(PO₄)₂, CeO₂ 등)로 O₂•⁻·H₂O₂를 효소 없이 검출. 2018년 이후 논문 수가 가장 빠르게 늘어난 영역.</p>
+    </div>
+  </div>
+  <p class="note">측정 기법: 정전위 크로노암페로메트리(연속 모니터링의 기본), CV·DPV(정량·스크리닝), FSCV(뇌, 서브초 시간분해능), SECM·나노전극(단일 세포).</p>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 연구 지도</span>
+  <h2>시대 × 적용 영역으로 본 진행 상황</h2>
+  <p class="muted">행은 측정 위치(침습 정도), 열은 시기입니다. 연도는 대표 연구 기준의 근사치이며, 각 칸은 그 시기에 등장하거나 확산된 대표적 흐름입니다.</p>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--pb)"></i>전극 소재·원리</span>
+    <span><i class="dot" style="background:var(--vit)"></i>In vitro · 세포</span>
+    <span><i class="dot" style="background:var(--inv)"></i>침습 · 이식형</span>
+    <span><i class="dot" style="background:var(--min)"></i>최소침습</span>
+    <span><i class="dot" style="background:var(--non)"></i>비침습 · 웨어러블</span>
+  </div>
+  <div class="mapbox" tabindex="0" aria-label="연구 지도 표, 가로 스크롤 가능">
+  <table class="map">
+    <thead><tr>
+      <th></th><th>~1989</th><th>1990–1999</th><th>2000–2009</th><th>2010–2015</th><th>2016–2020</th><th>2021–2026</th>
+    </tr></thead>
+    <tbody>
+      <tr class="r-mat">
+        <th>소재·원리<small>Electrode chemistry</small></th>
+        <td><span class="chip">Clark형 Pt 전극으로 H₂O₂ 산화 검출<em>1960s</em></span><span class="chip">HRP 기반 효소 전극</span></td>
+        <td><span class="chip">Prussian Blue를 “인공 퍼옥시다제”로 제안 (Karyakin 등)<em>~1994–95</em></span><span class="chip">Cyt c 기반 O₂•⁻ 센서 (Lisdat 등)</span></td>
+        <td><span class="chip">CNT · 금속 나노입자로 감도 향상</span><span class="chip">SOD 효소 전극</span></td>
+        <td><span class="chip">그래핀 · rGO 복합체</span><span class="chip">PB 안정화(나노입자, 니켈 헥사시아노페레이트)</span></td>
+        <td><span class="chip">나노자임 · MOF로 효소 대체</span><span class="chip">레이저 유도 그래핀(LIG)</span></td>
+        <td><span class="chip">단일원자 촉매(SAC), MXene</span><span class="chip">항오염(antifouling) 코팅, 다중 화학종 동시 검출</span></td>
+      </tr>
+      <tr class="r-vit">
+        <th>In vitro · 세포<small>Cell / organoid</small></th>
+        <td><span class="chip">호중구 산화 폭발(respiratory burst) 측정</span></td>
+        <td><span class="chip">탄소섬유 미세전극으로 단일 세포 ROS/RNS (Amatore 등)</span></td>
+        <td><span class="chip">SECM으로 세포 표면 ROS 매핑</span></td>
+        <td><span class="chip">나노전극을 세포 내부(포식소체)에 삽입<em>~2015–16</em></span></td>
+        <td><span class="chip">약물 반응 스크리닝용 칩 위 세포 배양</span></td>
+        <td><span class="chip">오가노이드 · organ-on-chip 통합 센서</span></td>
+      </tr>
+      <tr class="r-inv">
+        <th>침습 · 이식형<small>Implantable / in vivo</small></th>
+        <td><span class="chip">뇌 내 H₂O₂ 측정용 Pt 미세전극 초기 연구</span></td>
+        <td><span class="chip">허혈-재관류 모델에서 O₂•⁻·NO 측정</span></td>
+        <td><span class="chip">선택막(Nafion, mPD)으로 간섭 차단한 뇌 프로브</span></td>
+        <td><span class="chip">FSCV로 선조체 H₂O₂ 서브초 측정 (Wightman·Sanford)<em>~2010</em></span><span class="chip">종양 · 심장 모델 in vivo</span></td>
+        <td><span class="chip">유연 · 섬유형 프로브, 다중채널 신경 프로브</span></td>
+        <td><span class="chip">장기 이식 안정성 · 생체적합 코팅</span><span class="chip">무선 · 생분해성 이식 센서 탐색</span></td>
+      </tr>
+      <tr class="r-min">
+        <th>최소침습<small>Microneedle / catheter</small></th>
+        <td><span class="chip">—</span></td>
+        <td><span class="chip">미세투석 + 오프라인 분석</span></td>
+        <td><span class="chip">카테터 · 바늘형 센서</span></td>
+        <td><span class="chip">마이크로니들 전기화학 센서 등장 (주로 포도당)</span></td>
+        <td><span class="chip">마이크로니들로 간질액(ISF) H₂O₂ · 산화 스트레스 지표</span></td>
+        <td><span class="chip">마이크로니들 패치 + 무선 판독, 피부 염증 모니터링</span></td>
+      </tr>
+      <tr class="r-non">
+        <th>비침습 · 웨어러블<small>Sweat · breath · wound · tear</small></th>
+        <td><span class="chip">—</span></td>
+        <td><span class="chip">호기응축물(EBC) H₂O₂를 천식·COPD 지표로 제안 (실험실 분석)</span></td>
+        <td><span class="chip">EBC H₂O₂ 오프라인 전기화학 측정</span></td>
+        <td><span class="chip">스크린 프린팅 전극 · 땀 웨어러블 플랫폼 형성 (H₂O₂는 아직 드묾)</span></td>
+        <td><span class="chip">종이 기반 마스크 H₂O₂ 센서 (Maier · Dincer, ACS Sensors)<em>2019</em></span><span class="chip">상처 pH · 요산 스마트 붕대</span></td>
+        <td><span class="chip">LIG/PB 땀 H₂O₂ 센서<em>2023</em></span><span class="chip">마스크형 EBC 수집·분석(EBCare, Science 2024; H₂O₂는 미포함)</span><span class="chip">ROS 감지-약물 방출 폐루프 상처 하이드로겔</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 성숙도</span>
+  <h2>영역별 연구 진행 정도</h2>
+  <p class="muted">개념 증명 → 동물 / 시뮬레이션 검증 → 사람 대상 파일럿 → 임상 검증 → 상용화의 5단계로 본 정성적 평가입니다. 공개 문헌의 흐름을 바탕으로 한 판단이며 공식 TRL은 아닙니다.</p>
+  <div class="mat">
+    <div class="mrow"><span>세포 · in vitro 단일세포</span><div class="bar" role="img" aria-label="5단계 중 3.5"><i style="width:70%;background:var(--vit)"></i></div><span class="lv">3.5 / 5</span></div>
+    <div class="mrow"><span>뇌 · 조직 이식 프로브 (동물)</span><div class="bar" role="img" aria-label="5단계 중 2.5"><i style="width:50%;background:var(--inv)"></i></div><span class="lv">2.5 / 5</span></div>
+    <div class="mrow"><span>마이크로니들 · ISF</span><div class="bar" role="img" aria-label="5단계 중 2"><i style="width:40%;background:var(--min)"></i></div><span class="lv">2 / 5</span></div>
+    <div class="mrow"><span>호흡 · EBC 마스크</span><div class="bar" role="img" aria-label="5단계 중 2"><i style="width:40%;background:var(--non)"></i></div><span class="lv">2 / 5</span></div>
+    <div class="mrow"><span>땀 웨어러블</span><div class="bar" role="img" aria-label="5단계 중 2"><i style="width:40%;background:var(--non)"></i></div><span class="lv">2 / 5</span></div>
+    <div class="mrow"><span>스마트 상처 드레싱</span><div class="bar" role="img" aria-label="5단계 중 2"><i style="width:40%;background:var(--non)"></i></div><span class="lv">2 / 5</span></div>
+    <div class="mrow"><span>눈물 · 침 (콘택트렌즈 · 마우스가드)</span><div class="bar" role="img" aria-label="5단계 중 1"><i style="width:20%;background:var(--non)"></i></div><span class="lv">1 / 5</span></div>
+  </div>
+  <p class="note">요약: ROS 센서는 어느 영역에서도 아직 상용 진단기기 단계에 이르지 못했습니다. 가장 성숙한 곳은 세포·동물 연구용 도구이고, 비침습 웨어러블은 대부분 시뮬레이션 땀·에어로졸 호흡으로 검증된 개념 증명 단계입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 침습 vs 비침습</span>
+  <h2>두 갈래의 적용 방식</h2>
+  <div class="two">
+    <div class="side inv">
+      <h3 style="color:var(--inv)">침습 · 이식형 (최소침습 포함)</h3>
+      <dl>
+        <dt>측정 부위</dt><dd>뇌(선조체·해마), 종양, 심근, 혈관 · 피부 간질액(마이크로니들)</dd>
+        <dt>전극 형태</dt><dd>탄소섬유 미세전극(직경 5–10 µm), Pt/Ir 와이어, 실리콘·폴리이미드 다채널 프로브, 섬유형 유연 전극, 마이크로니들 어레이</dd>
+        <dt>기법</dt><dd>FSCV, 정전위 암페로메트리, 선택막(Nafion, mPD)을 이용한 차감 측정</dd>
+        <dt>측정 대상</dt><dd>H₂O₂, O₂•⁻, NO, ONOO⁻ — 세포 근처의 실제 국소 농도(nM–µM)</dd>
+        <dt>강점</dt><dd>공간·시간 분해능이 가장 높음. 신경전달·허혈·염증 기전 연구에 직접적</dd>
+        <dt>한계</dt><dd>이물 반응·단백질 흡착으로 감도 저하, 장기 보정, 멸균, 윤리·규제 장벽. 사람 적용은 수술 중 측정 정도로 제한적</dd>
+      </dl>
+    </div>
+    <div class="side non">
+      <h3 style="color:var(--non)">비침습 · 웨어러블</h3>
+      <dl>
+        <dt>측정 부위</dt><dd>호기(EBC), 땀, 상처 삼출물, 눈물, 침</dd>
+        <dt>전극 형태</dt><dd>스크린 프린팅 탄소/PB 전극, 종이 전극, LIG, PET·PI 필름 위 박막, 섬유·텍스타일 전극, 하이드로겔 일체형 전극</dd>
+        <dt>기법</dt><dd>PB 환원 영역(~0 V)의 크로노암페로메트리, 블랭크 전극 차감 측정, pH · 온도 보정 동시 측정</dd>
+        <dt>측정 대상</dt><dd>H₂O₂가 거의 전부. O₂•⁻는 수명이 짧아 체외 시료에서 거의 측정되지 않음</dd>
+        <dt>강점</dt><dd>반복·연속 측정, 저비용 일회용, 사람에게 바로 적용 가능</dd>
+        <dt>한계</dt><dd>H₂O₂가 시료 안에서 빨리 분해되고 농도가 낮음(서브µM–수 µM). 혈중·조직 산화 스트레스와의 상관관계가 아직 확립되지 않음</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">05 · 비침습 센서 상세</span>
+  <h2>비침습 ROS 센서의 전극 형태와 측정 방향</h2>
+  <p class="muted">“측정 방향”은 세 가지로 나눠 봤습니다. 시료가 어디서 와서 전극에 어떻게 닿는지(수송 방향), 전극에서 H₂O₂를 산화로 읽는지 환원으로 읽는지(전기화학적 방향), 그리고 일회성인지 연속인지(시간 방향)입니다.</p>
+
+  <div class="tbox" tabindex="0" aria-label="비침습 센서 전극 형태 표, 가로 스크롤 가능">
+  <table class="t">
+    <thead><tr><th>시료</th><th>전극 형태 · 기판</th><th>촉매 / 인식층</th><th>수송 방향</th><th>전기화학 방향</th><th>시간</th><th>대표 사례</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>호기 (EBC)</td>
+        <td>종이 위 스크린 프린팅 탄소 3전극, 마스크 필터 · 호흡 회로에 삽입</td>
+        <td><span class="tag cat">PB</span><span class="tag cat">키토산</span><span class="tag cat">Ag · AuNP/rGO</span></td>
+        <td>날숨 → 냉각 · 응축 → 전극 표면 액막. 정면 충돌형</td>
+        <td><span class="tag an">환원 (cathodic)</span> PB, ~0 V</td>
+        <td>호흡별 · 수 분 누적</td>
+        <td>Maier·Dincer 2019(종이 마스크), Palermo 그룹 2023(유연 마스크, 에어로졸 시험)</td>
+      </tr>
+      <tr>
+        <td>땀</td>
+        <td>LIG (폴리이미드 레이저 가공), PET/PI 박막 + 미세유체 채널, 섬유 전극</td>
+        <td><span class="tag cat">PB</span><span class="tag cat">MoS₂</span><span class="tag cat">CNT/TiO₂</span><span class="tag cat">나노자임</span></td>
+        <td>피부 → 수직 유입 → 채널 따라 수평 이동(lateral flow). 새 땀으로 교체</td>
+        <td><span class="tag an">환원</span> 위주, 일부 Pt계 <span class="tag an">산화</span></td>
+        <td>연속 (운동 · 이온토포레시스)</td>
+        <td>Barber·Papakonstantinou 2023 LIG/PB, PB + MoS₂ 미세유체 땀 센서</td>
+      </tr>
+      <tr>
+        <td>상처 삼출물</td>
+        <td>붕대 · 하이드로겔에 내장된 플렉서블 전극, 텍스타일 전극</td>
+        <td><span class="tag cat">MXene</span><span class="tag cat">PB</span><span class="tag cat">Pt NP</span></td>
+        <td>상처면 → 하이드로겔 통과 → 상부 전극으로 수직 확산</td>
+        <td><span class="tag an">환원</span> / <span class="tag an">산화</span> 혼재</td>
+        <td>연속 · 수 일, 측정 후 약물 방출</td>
+        <td>MXene 하이드로겔 감지-치료 폐루프 드레싱</td>
+      </tr>
+      <tr>
+        <td>눈물 · 침</td>
+        <td>콘택트렌즈 위 박막 전극, 마우스가드 일체형 전극</td>
+        <td><span class="tag cat">PB</span><span class="tag cat">효소</span></td>
+        <td>눈물막 · 침이 전극을 덮는 접촉형</td>
+        <td><span class="tag an">환원</span></td>
+        <td>연속 (초기 단계)</td>
+        <td>포도당 · 젖산 플랫폼에서 확장 중, ROS 단독 사례는 적음</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="dirs">
+    <div class="dir">
+      <h3>호흡: 정면 충돌</h3>
+      <svg viewBox="0 0 240 120" role="img" aria-label="날숨이 마스크 안에서 응축되어 전극에 닿는 모식도">
+        <rect x="150" y="20" width="12" height="80" rx="2" fill="var(--pb)"/>
+        <text x="168" y="64" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">전극</text>
+        <g stroke="var(--non)" stroke-width="2" fill="none">
+          <path d="M20 40 H130"/><path d="M20 60 H130"/><path d="M20 80 H130"/>
+          <path d="M124 35 L132 40 L124 45"/><path d="M124 55 L132 60 L124 65"/><path d="M124 75 L132 80 L124 85"/>
+        </g>
+        <g fill="var(--non)"><circle cx="142" cy="34" r="2.5"/><circle cx="142" cy="50" r="2.5"/><circle cx="142" cy="70" r="2.5"/><circle cx="142" cy="88" r="2.5"/></g>
+        <text x="20" y="104" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">날숨 → 응축 방울</text>
+      </svg>
+      <p>날숨이 필터 · 전극면에 직접 부딪혀 응축됩니다. 습도와 응축량이 변수라 키토산 같은 친수층과 블랭크 전극 차감이 쓰입니다.</p>
+    </div>
+    <div class="dir">
+      <h3>땀: 수직 유입 → 수평 흐름</h3>
+      <svg viewBox="0 0 240 120" role="img" aria-label="땀이 피부에서 올라와 미세유체 채널을 따라 전극으로 이동하는 모식도">
+        <rect x="10" y="96" width="220" height="14" rx="2" fill="var(--non-soft)"/>
+        <text x="16" y="107" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">피부</text>
+        <rect x="10" y="60" width="220" height="16" rx="3" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <g stroke="var(--non)" stroke-width="2" fill="none">
+          <path d="M40 94 V78"/><path d="M35 82 L40 76 L45 82"/>
+          <path d="M50 68 H200"/><path d="M194 63 L201 68 L194 73"/>
+        </g>
+        <rect x="120" y="40" width="40" height="10" rx="2" fill="var(--pb)"/>
+        <path d="M140 50 V60" stroke="var(--pb)" stroke-width="1.5"/>
+        <text x="122" y="34" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">전극</text>
+      </svg>
+      <p>땀샘에서 올라온 땀이 채널을 따라 전극 위를 지나가고 새 땀으로 계속 교체됩니다. 땀 속도 · pH 보정이 함께 필요합니다.</p>
+    </div>
+    <div class="dir">
+      <h3>상처: 하이드로겔 통과 수직 확산</h3>
+      <svg viewBox="0 0 240 120" role="img" aria-label="상처 삼출물이 하이드로겔을 통과해 상부 전극으로 확산되는 모식도">
+        <rect x="10" y="96" width="220" height="14" rx="2" fill="var(--inv-soft)"/>
+        <text x="16" y="107" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">상처면</text>
+        <rect x="10" y="44" width="220" height="48" rx="3" fill="var(--min-soft)"/>
+        <text x="16" y="58" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">하이드로겔</text>
+        <rect x="60" y="24" width="120" height="12" rx="2" fill="var(--pb)"/>
+        <text x="186" y="34" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">전극</text>
+        <g stroke="var(--inv)" stroke-width="2" fill="none">
+          <path d="M90 92 V42"/><path d="M85 48 L90 41 L95 48"/>
+          <path d="M150 92 V42"/><path d="M145 48 L150 41 L155 48"/>
+        </g>
+      </svg>
+      <p>염증 부위의 H₂O₂가 겔을 통과해 위쪽 전극에 닿습니다. 최근에는 같은 겔이 ROS에 반응해 약물을 내보내는 감지-치료 일체형으로 갑니다.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>전기화학적 방향이 왜 중요한가</h3>
+    <p class="muted">비침습 센서는 거의 모두 <b>환원 방향(PB, 약 0 V 근처)</b>으로 H₂O₂를 읽습니다. 땀 · 침에는 아스코르브산 · 요산 · 젖산이 많아, +0.6 V 산화 방식(Pt)으로는 간섭 전류가 H₂O₂ 신호보다 커지기 쉽기 때문입니다. 반대로 PB는 땀 · 호흡 응축물이 중성~약알칼리일 때 점점 녹아 감도가 떨어지므로, 최근 연구는 PB를 키토산 · 나노자임 · 니켈 헥사시아노페레이트로 보호하거나 효소 없는 나노촉매로 대체하는 쪽으로 움직였습니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">06 · 현재 트렌드 (2023–2026)</span>
+  <h2>지금 연구가 향하는 방향</h2>
+  <div class="trends">
+    <div class="trend"><div><h3>촉매: PB에서 나노자임 · 단일원자 촉매로</h3><span class="sig">소재</span></div><p>PB의 pH 불안정성을 피하려고 Fe–N–C 단일원자 촉매, MOF, MXene, CeO₂ 같은 효소 모사 촉매가 빠르게 늘고 있습니다. O₂•⁻를 효소 없이 선택 검출하는 연구도 이 흐름에 속합니다.</p></div>
+    <div class="trend"><div><h3>단일 화학종에서 다중 화학종으로</h3><span class="sig">측정 대상</span></div><p>H₂O₂만이 아니라 O₂•⁻, NO, ONOO⁻를 한 칩에서 같이 재고, pH · 온도 · 땀 속도를 함께 측정해 신호를 보정하는 다중 센서 어레이가 표준이 되어 가고 있습니다.</p></div>
+    <div class="trend"><div><h3>측정에서 치료까지: 폐루프</h3><span class="sig">적용</span></div><p>상처 드레싱이 가장 앞서 있습니다. H₂O₂ 농도로 염증을 읽고, 높으면 항산화제 · 항염증 약물을 방출하는 하이드로겔 · 전자 붕대가 2024–2026년에 집중적으로 보고되었습니다.</p></div>
+    <div class="trend"><div><h3>호흡 수집 하드웨어의 발전</h3><span class="sig">비침습</span></div><p>수동 냉각 · 미세유체로 마스크 안에서 EBC를 모으는 플랫폼(EBCare, Science 2024)이 등장했습니다. 아직 H₂O₂ 채널은 포함되지 않았지만, 이 하드웨어에 ROS 전극을 결합하는 것이 자연스러운 다음 단계로 보입니다.</p></div>
+    <div class="trend"><div><h3>이식형: 오래 버티는 프로브</h3><span class="sig">침습</span></div><p>유연 · 섬유형 프로브, 항오염 코팅, 무선 전력 · 통신, 생분해성 소재로 이물 반응을 줄이고 수 주 단위 측정을 노리고 있습니다.</p></div>
+    <div class="trend"><div><h3>무선 · 자가전원 · 데이터</h3><span class="sig">시스템</span></div><p>NFC · BLE 판독, 바이오연료전지 자가전원, 머신러닝 기반 드리프트 보정과 개인별 기준선 학습이 웨어러블 논문에 기본으로 들어가고 있습니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="gap">
+    <span class="eyebrow" style="color:var(--inv)">07 · 남은 공백</span>
+    <h3>연구자가 주목할 빈자리</h3>
+    <ul>
+      <li><b>감도 격차:</b> 생리적 EBC · 땀 H₂O₂는 대략 서브µM ~ 수 µM 수준으로 보고되는데, 보고된 웨어러블 센서 중에는 검출한계가 수십 µM인 것도 있습니다(예: 2023 마스크 센서 LOD 30–60 µM). 실제 사람 시료에서 쓰려면 한두 자릿수 개선이 필요합니다.</li>
+      <li><b>사람 대상 검증 부족:</b> 대부분 시뮬레이션 땀 · 분무 H₂O₂로 시험했습니다. 환자군(천식, COPD, 당뇨 족부궤양 등)과 표준 분석법 대비 검증 데이터가 드뭅니다.</li>
+      <li><b>생물학적 의미:</b> 땀 · 호흡 H₂O₂가 전신 산화 스트레스를 얼마나 반영하는지, 혈중 · 조직 지표와의 상관관계가 확립되지 않았습니다.</li>
+      <li><b>시료 내 분해:</b> H₂O₂는 카탈레이스 · 금속이온 · pH에 따라 수집 중에도 분해됩니다. 수집 즉시 측정하는 구조와 안정화 방법이 필요합니다.</li>
+      <li><b>O₂•⁻의 비침습 측정:</b> 거의 비어 있는 영역입니다. 피부 표면이나 상처면처럼 생성 부위에 바로 붙는 전극이 아니면 측정이 어렵습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처 · 참고</span>
+  <ol>
+    <li>Maier D. et al., “Toward Continuous Monitoring of Breath Biochemistry: A Paper-Based Wearable Sensor for Real-Time Hydrogen Peroxide Measurement in Simulated Breath,” ACS Sensors (2019). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6879172" target="_blank" rel="noopener">PMC6879172</a></li>
+    <li>Bruno M.G. et al., “Wearable Sensor for Real-time Monitoring of Hydrogen Peroxide in Simulated Exhaled Air,” Chem. Eng. Trans. (2023). <a href="https://www.cetjournal.it/index.php/cet/article/view/CET23100110" target="_blank" rel="noopener">CET</a> · <a href="https://iris.unipa.it/retrieve/98a10e8b-1bab-4f08-86df-0b016e3c0a35/PosterGEI.pdf" target="_blank" rel="noopener">포스터</a></li>
+    <li>Barber R., Davis J., Papakonstantinou P., LIG/PB 기반 땀 H₂O₂ 센서, ACS Appl. Nano Mater. (2023). <a href="https://pure.ulster.ac.uk/ws/files/121071097/acsanm.3c01199_1_.pdf" target="_blank" rel="noopener">PDF</a></li>
+    <li>PB + MoS₂ 미세유체 땀 H₂O₂ · 인산화 단백질 센서. <a href="https://bohrium.dp.tech/paper/arxiv/38896980" target="_blank" rel="noopener">초록</a></li>
+    <li>EBCare 스마트 마스크, Science (2024) 및 Heng W. 박사학위논문, Caltech (2025). <a href="https://thesis.caltech.edu/17069/" target="_blank" rel="noopener">Caltech thesis</a></li>
+    <li>MXene 전기활성 하이드로겔 상처 드레싱(H₂O₂ 감지 · 약물 방출). <a href="https://journal.hep.com.cn/aggregate/EN/10.1002/agt2.70405" target="_blank" rel="noopener">Aggregate</a></li>
+    <li>In vivo ROS/RNS 전기화학 마이크로 · 나노바이오센서 리뷰. <a href="https://researchportal.ip-paris.fr/en/publications/electrochemical-micro-and-nanobiosensors-for-in-vivo-reactive-oxy/" target="_blank" rel="noopener">IP Paris</a> · 이식형 전기화학 마이크로센서 리뷰, Nano-Micro Lett. (2024) <a href="https://link.springer.com/content/pdf/10.1007/s40820-023-01274-4.pdf" target="_blank" rel="noopener">PDF</a> · 생체 반응성 리뷰 <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7308849/" target="_blank" rel="noopener">PMC7308849</a></li>
+    <li>스마트 드레싱 생체 지표 스코핑 리뷰 프로토콜, J. Wound Management (2025). <a href="https://journals.cambridgemedia.com.au/jwm/volume-26-number-3/advancing-wound-care-scoping-review-protocol-biological-parameters-smart-dressings/10.35279/jowm2025.26.03.06" target="_blank" rel="noopener">JWM</a></li>
+    <li>고전 연구(링크 없음, 확인 권장): Karyakin 등의 Prussian Blue H₂O₂ 센서(1990년대 중반), Lisdat 등의 Cyt c 초과산화물 센서, Amatore · Arbault 등의 단일세포 ROS 미세전극, Sanford · Wightman 등의 FSCV 뇌 H₂O₂ 측정(~2010).</li>
+  </ol>
+  <p class="note">연도와 성숙도 점수는 대표 연구를 바탕으로 한 근사치입니다. 논문에 인용하기 전에 원문으로 확인하세요.</p>
+</section>
+
+</div>
