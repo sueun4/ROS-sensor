@@ -1,0 +1,315 @@
+<title>뇌 ROS 전기화학 측정 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.brain{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}
+@media (max-width:760px){.brain{grid-template-columns:1fr}}
+.brain svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.regions{display:flex;flex-direction:column;gap:12px}
+.region{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:grid;grid-template-columns:28px 1fr;gap:4px 12px;min-width:0}
+.region .n{grid-row:span 3;width:26px;height:26px;border-radius:50%;background:var(--pb);color:var(--surface);font-family:var(--mono);font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.region h3{font-size:.98rem}
+.region p{font-size:.87rem;color:var(--muted)}
+.region .ev{font-family:var(--mono);font-size:.72rem;color:var(--pb)}
+.ratio{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);font-family:var(--mono);font-size:.78rem}
+.ratio div{display:flex;align-items:center;padding:0 10px;white-space:nowrap;overflow:hidden}
+.t td.yr{font-family:var(--mono);font-weight:500;white-space:nowrap}
+.t td.sm{font-size:.82rem;color:var(--muted)}
+.back{font-size:.85rem}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Brain focus · 2026-11 기준</span>
+  <h1>뇌 ROS 전기화학 측정 지도</h1>
+  <p class="lede">뇌 안에서 활성산소종을 전극으로 직접 측정한 연구를 부위별 의미, 대표 연구, 침습/비침습 구분과 전극 형태, 최근 트렌드 순서로 정리했습니다.</p>
+  <p class="back"><a href="https://claude.ai/artifact/QLUYEZ6EMAkLiwFqMF7KcA" target="_blank" rel="noopener">← 전체 ROS 센서 연구 지도 보기</a></p>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 부위별 의미</span>
+  <h2>어디서 재느냐에 따라 묻는 질문이 다르다</h2>
+  <p class="muted">뇌의 H₂O₂는 손상 지표이면서 동시에 신경전달을 조절하는 신호 분자입니다. 그래서 같은 H₂O₂라도 측정 부위에 따라 “파킨슨병의 도파민 조절”, “허혈 후 재관류 손상”, “확산성 탈분극” 같은 서로 다른 질문에 답하게 됩니다.</p>
+  <div class="brain">
+    <svg viewBox="0 0 360 260" role="img" aria-label="쥐 뇌 시상면 모식도에 측정 부위 번호를 표시한 그림">
+      <path d="M40 150 C30 90 90 40 170 38 C250 36 320 70 330 130 C335 165 310 190 280 196 L260 230 C250 240 230 238 228 222 L222 200 C180 210 120 212 80 200 C55 192 44 176 40 150 Z" fill="var(--pb-soft)" stroke="var(--pb)" stroke-width="1.5"/>
+      <path d="M60 120 C90 70 160 52 230 58 C280 62 312 90 318 126" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+      <ellipse cx="290" cy="170" rx="34" ry="24" fill="var(--surface)" stroke="var(--line)" stroke-width="1.2"/>
+      <text x="270" y="174" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">소뇌</text>
+      <g font-family="IBM Plex Mono, monospace" font-size="11" text-anchor="middle">
+        <circle cx="150" cy="70" r="11" fill="var(--pb)"/><text x="150" y="74" fill="var(--surface)">1</text>
+        <circle cx="120" cy="130" r="11" fill="var(--pb)"/><text x="120" y="134" fill="var(--surface)">2</text>
+        <circle cx="92" cy="168" r="11" fill="var(--pb)"/><text x="92" y="172" fill="var(--surface)">3</text>
+        <circle cx="205" cy="118" r="11" fill="var(--pb)"/><text x="205" y="122" fill="var(--surface)">4</text>
+        <circle cx="200" cy="178" r="11" fill="var(--pb)"/><text x="200" y="182" fill="var(--surface)">5</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="10" fill="var(--ink)">
+        <text x="166" y="58">대뇌피질</text>
+        <text x="62" y="118">선조체</text>
+        <text x="40" y="196">측좌핵</text>
+        <text x="220" y="108">해마</text>
+        <text x="214" y="200">흑질</text>
+      </g>
+      <text x="14" y="250" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">시상면 모식도 · 위치는 개략적</text>
+    </svg>
+    <div class="regions">
+      <div class="region"><span class="n">1</span><h3>대뇌피질 (cortex)</h3><p>뇌졸중·외상성 뇌손상·편두통에서 일어나는 확산성 탈분극(spreading depolarization)과 그에 따른 산화 스트레스를 봅니다. 표면에 가까워 전극 삽입이 쉽고, 장차 사람 수술 중 측정과 가장 가까운 부위입니다.</p><span class="ev">근거: 백금화 탄소섬유 전극으로 SD 중 H₂O₂ 관련 신호 측정 (2018)</span></div>
+      <div class="region"><span class="n">2</span><h3>선조체 (striatum)</h3><p>가장 많이 연구된 부위입니다. 중형 가시뉴런(MSN)이 만든 H₂O₂가 도파민 방출을 억제하는 신호로 작동한다는 모델이 있어, 파킨슨병·L-DOPA 이상운동증 연구에서 도파민과 H₂O₂를 동시에 재는 것이 핵심입니다.</p><span class="ev">근거: Sombers 그룹 FSCV 연구 다수, Lowry 그룹 자유행동 쥐 12일 측정</span></div>
+      <div class="region"><span class="n">3</span><h3>측좌핵 (nucleus accumbens)</h3><p>보상·중독 회로. 도파민 FSCV 연구는 많지만 ROS를 직접 잰 연구는 이번 조사에서 확인하지 못했습니다. 비어 있는 부위로 볼 수 있습니다.</p><span class="ev">근거: 확인된 ROS 직접 측정 없음</span></div>
+      <div class="region"><span class="n">4</span><h3>해마 (hippocampus)</h3><p>허혈에 가장 취약한 부위(CA1)이며 알츠하이머·뇌전증과 연결됩니다. 허혈보다 재관류 시기에 O₂•⁻가 더 크게 늘어나는 것처럼, 손상이 언제 일어나는지를 시간 단위로 보여 주는 데 쓰였습니다.</p><span class="ev">근거: Cyt c 미세바이오센서 허혈-재관류 O₂•⁻ (뇌절편·in vivo, 2019)</span></div>
+      <div class="region"><span class="n">5</span><h3>흑질 (substantia nigra)</h3><p>도파민 뉴런이 소실되는 파킨슨병의 원발 부위. MAO에 의한 도파민 대사가 H₂O₂를 만들기 때문에 의미가 크지만, 깊고 작아서 전기화학 직접 측정은 선조체보다 훨씬 적습니다.</p><span class="ev">근거: 주로 선조체에서 간접 연구</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 대표 연구</span>
+  <h2>뇌에서 ROS를 측정한 연구들</h2>
+  <div class="tbox" tabindex="0" aria-label="뇌 ROS 측정 연구 표, 가로 스크롤 가능">
+  <table class="t">
+    <thead><tr><th>연도</th><th>그룹 · 출처</th><th>부위 · 모델</th><th>대상</th><th>전극</th><th>기법</th><th>핵심 결과</th></tr></thead>
+    <tbody>
+      <tr><td class="yr">~2010</td><td>Sanford · Wightman 등</td><td>선조체 (방법 확립)</td><td>H₂O₂</td><td>탄소섬유 미세전극(CFME)</td><td>FSCV</td><td class="sm">CFME에서 H₂O₂를 서브초 단위로 읽는 방법 확립</td></tr>
+      <tr><td class="yr">2013</td><td>Sombers 그룹</td><td>배측 선조체, 쥐</td><td>H₂O₂ + 도파민</td><td>CFME</td><td>FSCV</td><td class="sm">내인성 H₂O₂가 늘면 전기자극 도파민 방출과 기저 도파민이 감소</td></tr>
+      <tr><td class="yr">2017</td><td>Wilson 등 (Sombers 그룹)</td><td>배측 선조체, 쥐</td><td>H₂O₂</td><td>페닐렌디아민(mPD) 코팅 CFME</td><td>FSCV</td><td class="sm">선택막으로 다른 전기활성 물질과의 혼동을 줄임</td></tr>
+      <tr><td class="yr">2017</td><td>O'Riordan · Lowry</td><td>선조체, 자유행동 쥐</td><td>H₂O₂</td><td>카탈레이스 유무 이중(dual) Pt 전극</td><td>정전위 암페로메트리</td><td class="sm">12일 연속 측정 안정. 카탈레이스·GPx 억제제로 신호 증가 확인. 마취 상태와 자유행동 상태의 신호가 다름</td></tr>
+      <tr><td class="yr">2018</td><td>Ledo · Barbosa 그룹</td><td>뇌 미세투석액, 허혈</td><td>H₂O₂ + pH</td><td>카탈레이스 + 페로센 내부기준 CFME (비율 측정)</td><td>암페로메트리</td><td class="sm">허혈 후 미세투석 시료에서 H₂O₂·pH 동시 측정 (조직 직접 측정은 아님)</td></tr>
+      <tr><td class="yr">2018</td><td>백금화 CFME 연구</td><td>대뇌피질, SD 유도</td><td>H₂O₂</td><td>백금화 CFME (12–15 µm)</td><td>암페로메트리</td><td class="sm">백금화로 H₂O₂ 감도 향상, SD 중 신경화학 변화 추적</td></tr>
+      <tr><td class="yr">2019</td><td>Biomolecules</td><td>뇌, 경동맥 폐색 허혈-재관류</td><td>O₂•⁻</td><td>시토크롬 c 미세바이오센서</td><td>+0.15 V 암페로메트리</td><td class="sm">재관류 시 O₂•⁻가 허혈 시보다 큼. 세륨 산화물 나노입자 처치로 감소</td></tr>
+      <tr><td class="yr">2019</td><td>Peng · Yu 등</td><td>정상 vs 알츠하이머 모델 쥐</td><td>O₂•⁻</td><td>CFME (기능화)</td><td>전기화학</td><td class="sm">알츠하이머 모델 뇌에서 O₂•⁻ 비교 측정</td></tr>
+      <tr><td class="yr">2021</td><td>Sombers 그룹 (ACS Meas. Sci. Au)</td><td>선조체, 편측 파킨슨 쥐</td><td>H₂O₂ + 도파민</td><td>CFME</td><td>FSCV</td><td class="sm">L-DOPA 유발 회전 행동과 연동된 도파민·H₂O₂ 일과성 변화 동시 측정</td></tr>
+      <tr><td class="yr">2021</td><td>Mao 그룹 (Chem. Sci.)</td><td>쥐 뇌</td><td>H₂O₂</td><td>Cu 단일원자 촉매/질화탄소 미세센서</td><td>암페로메트리</td><td class="sm">O₂·다른 신경화학물질에 반응하지 않는 효소 없는 H₂O₂ 센서</td></tr>
+      <tr><td class="yr">2022</td><td>Redox Biology</td><td>선조체, in vivo · 뇌절편</td><td>H₂O₂</td><td>미세센서</td><td>암페로메트리</td><td class="sm">세포외 H₂O₂ 반감기 약 2.2 s, 유효 확산계수 약 2.5×10⁻⁵ cm²/s</td></tr>
+      <tr><td class="yr">2024</td><td>Nature Commun.</td><td>쥐 뇌</td><td>도파민 (ROS 억제)</td><td>Fe 단일원자 촉매 항산화 전극</td><td>전기화학</td><td class="sm">전극 삽입 자체가 ROS와 신경염증을 일으켜 측정을 왜곡하므로, 전극이 ROS를 없애도록 설계</td></tr>
+      <tr><td class="yr">2025</td><td>PubMed 41051004</td><td>체내 염증 (뇌 여부 미확인)</td><td>H₂O₂</td><td>Pt-MoO₃₋ₓ 나노자임, 유연 생분해성 무선 센서</td><td>암페로메트리</td><td class="sm">LOD 0.26 µM, 80시간 안정, 제거 수술 불필요</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">비교: 뇌전증에서 퍼옥시나이트라이트(ONOO⁻) 연구는 전극이 아니라 근적외선 형광·광음향 이미징으로 진행되었습니다(2019 Adv. Sci., 2025 Chem. Sci.). 전기화학적 ONOO⁻ 뇌 측정 사례는 이번 조사에서 찾지 못했습니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 침습 vs 비침습</span>
+  <h2>뇌 ROS 측정은 사실상 전부 침습적이다</h2>
+  <div class="ratio" role="img" aria-label="뇌 ROS 전기화학 연구의 대부분은 침습, 일부는 미세투석, 비침습은 간접 지표뿐">
+    <div style="flex:8;background:var(--inv-soft);color:var(--inv)">침습 · 전극 이식 (동물)</div>
+    <div style="flex:1.3;background:var(--min-soft);color:var(--min)">미세투석</div>
+    <div style="flex:.9;background:var(--non-soft);color:var(--non)">비침습</div>
+  </div>
+  <p class="muted" style="font-size:.85rem">비율은 이번 조사에서 확인한 연구 분포를 대략 표현한 것입니다.</p>
+  <div class="two">
+    <div class="side inv">
+      <h3 style="color:var(--inv)">침습: 전극을 뇌 조직에 직접 삽입</h3>
+      <dl>
+        <dt>대상</dt><dd>쥐(마취 또는 자유행동), 뇌절편. 사람 사례는 확인하지 못함</dd>
+        <dt>전극 형태</dt><dd>
+          <b>탄소섬유 미세전극(CFME)</b>: 직경 약 7 µm 원통형, FSCV의 표준. mPD · Nafion 선택막, 백금화, 단일원자 촉매로 개질<br>
+          <b>Pt / Pt-Ir 디스크 · 와이어 전극</b>: 효소(카탈레이스, Cyt c) 층을 올려 암페로메트리<br>
+          <b>이중(dual) 전극</b>: 효소 있는 전극과 없는 전극을 나란히 두고 신호를 차감<br>
+          <b>유연 · 생분해성 프로브</b>: 고분자 기판, 나노자임, 무선 판독 (최근)</dd>
+        <dt>기법</dt><dd>FSCV(도파민과 동시 측정), 정전위 암페로메트리(장기 연속 측정)</dd>
+        <dt>장점</dt><dd>µm 수준 공간 분해능, 초 이하 시간 분해능, 행동과 동시 기록</dd>
+        <dt>한계</dt><dd>삽입 손상 자체가 ROS를 만듦, 조직 반응으로 감도 저하, 깊은 부위(흑질) 접근 어려움</dd>
+      </dl>
+    </div>
+    <div class="side non">
+      <h3 style="color:var(--non)">비침습 · 간접: 뇌 밖에서 추정</h3>
+      <dl>
+        <dt>현황</dt><dd>뇌 속 ROS를 비침습 전기화학으로 직접 잰 연구는 확인하지 못했습니다</dd>
+        <dt>시도된 경로</dt><dd>
+          <b>땀</b>: PB · MoS₂ 미세유체 패치로 H₂O₂와 인산화 단백질을 측정해 중추신경 관련 산화 스트레스 지표로 제시(2024)<br>
+          <b>눈물 · 침</b>: 비침습 체액으로 분류되지만 뇌 ROS와 연결한 전기화학 연구는 드뭄<br>
+          <b>미세투석</b>: 프로브는 침습적이지만 측정은 체외 전극에서 수행하는 중간 형태</dd>
+        <dt>전극 형태</dt><dd>LIG, PET/PI 필름 미세유체 패치, 스크린 프린팅 PB 전극</dd>
+        <dt>비전기화학 대안</dt><dd>형광 · 광음향 이미징(동물), 사람에서는 MRS로 글루타티온 같은 항산화 지표를 간접 측정</dd>
+        <dt>한계</dt><dd>말초 체액의 H₂O₂가 뇌의 산화 스트레스를 반영하는지 검증되지 않음</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 현재 트렌드</span>
+  <h2>뇌 ROS 측정 연구가 향하는 방향</h2>
+  <div class="trends">
+    <div class="trend"><div><h3>도파민과 H₂O₂를 함께 읽기</h3><span class="sig">다중 분석</span></div><p>H₂O₂가 도파민 방출을 조절한다는 모델 때문에, FSCV 한 번의 스캔에서 두 물질을 분리해 읽는 연구가 늘었습니다. 파킨슨병 · L-DOPA 이상운동증 모델에서 행동과 신호를 함께 기록하는 방식이 표준이 되어 가고 있습니다.</p></div>
+    <div class="trend"><div><h3>효소 대신 단일원자 촉매 · 나노자임</h3><span class="sig">소재</span></div><p>Cu, Fe 단일원자 촉매처럼 효소 없이 H₂O₂ · O₂•⁻를 선택적으로 검출하는 전극이 늘었습니다. 효소의 수명과 멸균 문제를 피할 수 있습니다.</p></div>
+    <div class="trend"><div><h3>측정이 측정을 망치지 않도록</h3><span class="sig">생체적합성</span></div><p>전극 삽입이 ROS와 신경염증을 일으킨다는 점이 주목받으면서, 전극이 주변 ROS를 없애는 항산화 코팅(2024 Nat. Commun.)과 더 가늘고 부드러운 프로브가 연구되고 있습니다. ROS 센서 입장에서는 배경 신호를 낮추는 문제와도 같습니다.</p></div>
+    <div class="trend"><div><h3>마취에서 자유행동 · 장기 측정으로</h3><span class="sig">실험 설계</span></div><p>마취 상태와 자유행동 상태에서 H₂O₂ 신호가 다르다는 보고 이후, 며칠~수 주 이식 측정과 무선 판독이 늘었습니다. 유연 · 생분해성 무선 H₂O₂ 센서(2025)가 그 연장선입니다.</p></div>
+    <div class="trend"><div><h3>H₂O₂의 정량적 동역학</h3><span class="sig">기초 생물학</span></div><p>반감기(약 2.2 s)와 확산계수 같은 수치를 in vivo에서 직접 구해, H₂O₂가 얼마나 멀리 퍼지는 신호인지를 정량화하는 연구가 나오고 있습니다.</p></div>
+    <div class="trend"><div><h3>사람 뇌로의 확장 가능성</h3><span class="sig">전망</span></div><p>사람 뇌에서 ROS를 전기화학으로 잰 사례는 찾지 못했습니다. 다만 뇌심부자극(DBS) 수술 중 FSCV로 도파민을 측정한 선례가 있어, 같은 경로로 H₂O₂ 측정이 시도될 여지가 있습니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="gap">
+    <span class="eyebrow" style="color:var(--inv)">05 · 연구 공백</span>
+    <h3>뇌 ROS 측정에서 비어 있는 곳</h3>
+    <ul>
+      <li><b>부위 편중:</b> 선조체에 연구가 몰려 있고, 측좌핵 · 흑질 · 소뇌의 직접 측정은 드뭅니다.</li>
+      <li><b>화학종 편중:</b> 대부분 H₂O₂입니다. O₂•⁻는 일부, ONOO⁻ · •OH의 전기화학적 in vivo 측정은 거의 없습니다.</li>
+      <li><b>비침습 다리 부족:</b> 땀 · 눈물 H₂O₂와 뇌 산화 스트레스의 상관관계를 동물에서 동시에 검증한 연구가 필요합니다. 이식 전극과 말초 웨어러블을 같은 동물에 동시에 붙이는 설계가 하나의 방법입니다.</li>
+      <li><b>삽입 손상 보정:</b> 이식 직후 ROS 증가를 기준선과 어떻게 구분할지 표준이 없습니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>Sombers 그룹, 선조체 H₂O₂ · 도파민 동시 측정 (2013). <a href="https://pesquisa.bvsalud.org/bvsms/resource/pt/mdl-23556461" target="_blank" rel="noopener">PubMed 23556461</a> · FSCV 조건 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3656754" target="_blank" rel="noopener">PMC3656754</a></li>
+    <li>Wilson 등, mPD 코팅 선택적 H₂O₂ 측정 (2017). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5750107" target="_blank" rel="noopener">PMC5750107</a> · 학위논문 <a href="https://repository.lib.ncsu.edu/server/api/core/bitstreams/9d269a97-5088-49a5-bd72-8dfe36ca8afe/content" target="_blank" rel="noopener">NCSU</a></li>
+    <li>편측 파킨슨 쥐 도파민 · H₂O₂, ACS Meas. Sci. Au (2021). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9838821/" target="_blank" rel="noopener">PMC9838821</a></li>
+    <li>H₂O₂ 반감기 · 확산, Redox Biology (2022). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8804256" target="_blank" rel="noopener">PMC8804256</a></li>
+    <li>O'Riordan &amp; Lowry, 자유행동 쥐 카탈레이스 기반 H₂O₂ 센서, Anal. Methods (2017). <a href="https://mural.maynoothuniversity.ie/11615/1/Lowry_inVivo_2017.pdf" target="_blank" rel="noopener">MURAL</a> · <a href="https://pubs.rsc.org/en/content/articlelanding/2017/ay/c6ay03066a" target="_blank" rel="noopener">RSC</a></li>
+    <li>허혈 미세투석 H₂O₂ · pH 비율 센서, Electroanalysis (2018). <a href="https://zendy.io/title/10.1002/elan.201700684" target="_blank" rel="noopener">초록</a> · Ledo 프로필 <a href="https://cnc.uc.pt/people/a-ledo" target="_blank" rel="noopener">CNC</a></li>
+    <li>백금화 CFME, 피질 SD (2018). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6311694" target="_blank" rel="noopener">PMC6311694</a></li>
+    <li>허혈-재관류 O₂•⁻ Cyt c 미세바이오센서, Biomolecules (2019). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6843313/figure/biomolecules-09-00562-f006" target="_blank" rel="noopener">PMC6843313</a> · 뇌절편 연구 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3565046" target="_blank" rel="noopener">PMC3565046</a></li>
+    <li>알츠하이머 쥐 뇌 O₂•⁻ in vivo (2019). <a href="https://pure.ecnu.edu.cn/en/publications/in-vivo-monitoring-of-superoxide-anion-from-alzheimers-rat-brains/" target="_blank" rel="noopener">ECNU</a></li>
+    <li>Cu 단일원자 촉매 H₂O₂ 미세센서, Chem. Sci. (2021). <a href="https://pubs.rsc.org/en/content/articlepdf/2021/sc/d1sc04755h" target="_blank" rel="noopener">RSC</a></li>
+    <li>항산화 Fe 단일원자 촉매 전극, Nat. Commun. (2024). <a href="https://www.nature.com/articles/s41467-024-52279-5" target="_blank" rel="noopener">Nature</a></li>
+    <li>유연 생분해성 무선 H₂O₂ 센서, Pt-MoO₃₋ₓ 나노자임 (2025). <a href="https://pubmed.ncbi.nlm.nih.gov/41051004/" target="_blank" rel="noopener">PubMed 41051004</a></li>
+    <li>뇌전증 ONOO⁻ 이미징: Adv. Sci. (2019) <a href="https://doaj.org/article/674b500fa74c49e39a732f106ce1e9ac" target="_blank" rel="noopener">DOAJ</a> · Chem. Sci. (2025) <a href="https://pubs.rsc.org/en/content/articlepdf/2025/sc/d5sc00568j" target="_blank" rel="noopener">RSC</a></li>
+    <li>땀 H₂O₂ · CNS 관련 미세유체 센서 (2024). <a href="https://bohrium.dp.tech/paper/arxiv/38896980" target="_blank" rel="noopener">초록</a> · 비침습 산화 스트레스 리뷰 <a href="https://doaj.org/article/0ec0ab16ab1c4f289bee5813aa000e79" target="_blank" rel="noopener">Chemosensors 2020</a></li>
+  </ol>
+  <p class="note">검색 결과 요약을 바탕으로 정리했고 원문 전체를 모두 읽지는 않았습니다. Sanford · Wightman(~2010)과 사람 DBS 수술 중 FSCV 도파민 측정은 배경지식으로 적었습니다. 인용 전에 원문을 확인하세요.</p>
+</section>
+
+</div>
