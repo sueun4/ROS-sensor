@@ -1,0 +1,322 @@
+<title>웰 바닥 전극 장착 설계</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.xsec{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.xsec svg{width:100%;min-width:620px;height:auto;display:block}
+.configs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.cfg{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cfg .lbl{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.cfg p{font-size:.86rem;color:var(--muted)}
+.cfg ul{margin:0;padding-left:18px;font-size:.84rem;color:var(--muted)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .n{font-family:var(--mono);color:var(--pb);font-size:.85rem}
+.step p{font-size:.9rem}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Well-bottom electrode hardware · 2026-11 기준</span>
+  <h1>웰 바닥 전극 장착 설계</h1>
+  <p class="lede">작업전극(WE)을 배양 웰 바닥에 두고, 배선은 배지에 닿지 않게 밖으로 빼고, 배지를 갈 때 전극과 세포를 건드리지 않는 구조를 정리했습니다. 상용 전기저항 측정용 웰 칩(ECIS)과 연구용 칩 홀더에서 쓰는 방식을 바탕으로 했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/HiQjyafawbsDhLuLiRWhWD" target="_blank" rel="noopener">← 바닥 측정 3전극 구성</a> · <a href="https://claude.ai/artifact/AxT5DPL3tSPdWYeEKjUmPG" target="_blank" rel="noopener">뇌세포 전극 설계</a></p>
+</header>
+
+<section>
+  <span class="eyebrow">권장 구조 · 단면</span>
+  <h2>전극 판이 곧 웰 바닥이 되는 구조</h2>
+  <p class="muted">핵심은 세 가지입니다. 전극이 인쇄된 판(SPE 또는 유리 칩)을 웰의 바닥으로 쓰고, WE 배선은 웰 벽 아래를 지나 웰 밖의 접촉 패드로 나가며, RE · CE와 배지 교환구는 뚜껑에 붙입니다.</p>
+  <div class="xsec">
+    <svg viewBox="0 0 700 280" role="img" aria-label="권장 구조 단면도: 바닥 전극 판 위에 웰 벽이 접착되고, 작업전극 배선이 벽 아래를 지나 밖의 패드로 연결되며, 홀더의 포고핀이 패드에 닿고, 뚜껑에 기준전극과 상대전극과 흡입구가 있다">
+      <!-- holder -->
+      <rect x="40" y="230" width="620" height="24" rx="3" fill="var(--vit-soft)" stroke="var(--line)"/>
+      <text x="48" y="246" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">홀더 (3D 프린팅 · PEEK · 테플론)</text>
+      <!-- chip -->
+      <rect x="80" y="210" width="540" height="20" fill="var(--surface)" stroke="var(--ink)" stroke-width="1"/>
+      <text x="88" y="224" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">전극 판 (SPE · 유리)</text>
+      <!-- WE -->
+      <rect x="250" y="204" width="140" height="6" fill="var(--pb)"/>
+      <!-- trace -->
+      <rect x="390" y="206" width="200" height="3" fill="var(--pb)" opacity=".7"/>
+      <rect x="440" y="203" width="100" height="3" fill="var(--muted)"/>
+      <text x="440" y="198" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">절연층</text>
+      <!-- pad -->
+      <rect x="570" y="204" width="34" height="6" fill="var(--pb)"/>
+      <!-- pogo -->
+      <rect x="582" y="170" width="10" height="34" fill="var(--inv)"/>
+      <rect x="560" y="150" width="56" height="20" rx="3" fill="var(--vit-soft)" stroke="var(--line)"/>
+      <text x="520" y="142" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">포고핀 · 클립 → 케이블</text>
+      <!-- well walls -->
+      <rect x="170" y="80" width="16" height="130" fill="var(--min-soft)" stroke="var(--min)"/>
+      <rect x="454" y="80" width="16" height="130" fill="var(--min-soft)" stroke="var(--min)"/>
+      <rect x="170" y="204" width="16" height="6" fill="var(--ink)"/>
+      <rect x="454" y="204" width="16" height="6" fill="var(--ink)"/>
+      <text x="104" y="100" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">웰 벽</text>
+      <text x="96" y="196" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">실리콘 접착 · O-링</text>
+      <!-- medium -->
+      <rect x="186" y="120" width="268" height="84" fill="var(--pb-soft)"/>
+      <!-- cells -->
+      <g fill="var(--non)"><circle cx="270" cy="199" r="5"/><circle cx="295" cy="199" r="5"/><circle cx="320" cy="199" r="5"/><circle cx="345" cy="199" r="5"/><circle cx="370" cy="199" r="5"/></g>
+      <!-- lid -->
+      <rect x="160" y="64" width="320" height="16" rx="3" fill="var(--surface)" stroke="var(--ink)"/>
+      <text x="488" y="76" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">전극 뚜껑</text>
+      <!-- RE -->
+      <rect x="206" y="30" width="12" height="120" rx="5" fill="var(--min)"/>
+      <text x="196" y="24" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">RE</text>
+      <!-- CE -->
+      <path d="M430 30 V150" stroke="var(--inv)" stroke-width="3"/>
+      <text x="422" y="24" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">CE</text>
+      <!-- aspiration port -->
+      <rect x="236" y="40" width="8" height="150" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="250" y="48" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">교환구 (벽 쪽)</text>
+      <!-- dims -->
+      <text x="270" y="172" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">WE + 세포</text>
+    </svg>
+  </div>
+  <p class="note">모식도이며 비율은 실제와 다릅니다. 상용 ECIS 웰 칩(8W10E)도 같은 원리로, 각 웰 바닥의 금 전극이 공통 금 패드로 연결되어 웰 밖에서 접촉합니다(웰 바닥 0.8 cm², 최대 600 µL).</p>
+</section>
+
+<section>
+  <span class="eyebrow">Q1 · WE를 웰 바닥에 두는 방법</span>
+  <h2>네 가지 장착 방식</h2>
+  <div class="configs">
+    <div class="cfg">
+      <span class="lbl">A · 바닥 없는 웰을 전극 판에 접착</span>
+      <h3>가장 권장</h3>
+      <ul>
+        <li>바닥이 없는 웰(접착식 슬라이드 웰, PDMS 링, 유리 링, 3D 프린팅 틀)을 전극 판 위에 붙입니다</li>
+        <li>WE는 웰 가운데, 배선은 벽 아래로 지나 밖으로</li>
+        <li>PDMS는 산소 플라즈마로 유리 · 전극 층에 접합할 수 있습니다</li>
+      </ul>
+      <p>새는 곳이 없고 세포가 WE 위에서만 자랍니다. 다만 전극 판이 일회용이 됩니다.</p>
+      <span><span class="pill go">1순위</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">B · O-링 클램프 홀더</span>
+      <h3>칩 재사용형</h3>
+      <ul>
+        <li>홀더 바닥에 전극 판을 놓고, 위에서 웰 실린더를 O-링으로 눌러 밀봉</li>
+        <li>같은 홀더에 포고핀 커넥터를 넣어 패드와 접촉</li>
+        <li>유리 칩 + 테플론 홀더 + 포고핀 + O-링 사례가 있습니다</li>
+      </ul>
+      <p>칩을 빼서 세척 · 재활성화(Pt 계열)할 수 있습니다. 홀더 제작이 필요하고 조일 때 칩이 깨지지 않게 해야 합니다.</p>
+      <span><span class="pill go">Pt 재사용 시</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">C · 웰 플레이트 바닥에 구멍</span>
+      <h3>기존 플레이트 개조</h3>
+      <ul>
+        <li>6 · 12웰 플레이트 바닥을 뚫거나 바닥 없는 플레이트를 쓰고, 아래에서 전극 판을 붙임</li>
+        <li>플레이트 뚜껑 · 규격을 그대로 써서 인큐베이터 · 현미경 호환</li>
+      </ul>
+      <p>여러 웰을 동시에 측정하기 좋습니다. 접착면이 넓어 새는 곳 확인이 중요합니다.</p>
+      <span><span class="pill mid">다중 웰</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">D · SPE를 웰 안에 눕히기</span>
+      <h3>빠른 예비 실험용</h3>
+      <ul>
+        <li>6웰 바닥에 SPE를 눕히고 커넥터 꼬리를 벽 위로 꺾어 뺌</li>
+        <li>세포는 작업전극 위 클로닝 링 안에만 파종</li>
+      </ul>
+      <p>바로 할 수 있지만 배지가 SPE 꼬리를 타고 올라가(모세관 현상) 커넥터가 젖기 쉽고, SPE가 떠오르거나 움직입니다. 소독용 테이프로 고정하고 꼬리를 절연해야 합니다.</p>
+      <span><span class="pill warn">예비 실험만</span></span>
+    </div>
+  </div>
+  <div class="checks">
+    <div class="chk"><h3>접착제 선택</h3><p>완전히 경화된 PDMS나 생체적합 등급 실리콘 · 양면 테이프를 씁니다. 경화 중 아세트산을 내는 일반 실리콘 실런트는 세포 독성이 있을 수 있어 피하고, 어떤 접착제든 경화 후 배지에 하루 담가 용출물을 뺍니다.</p></div>
+    <div class="chk"><h3>WE 위치</h3><p>WE는 웰 중앙에, 벽에서 수 mm 떨어지게 둡니다. 벽 쪽에는 배지를 빼는 공간을 남겨 두어야 흡입 팁이 WE와 세포 위를 지나가지 않습니다.</p></div>
+    <div class="chk"><h3>누수 확인</h3><p>세포를 넣기 전에 배지를 채워 하루 동안 37 °C에 두고 패드 쪽이 젖지 않는지 확인합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Q2 · 선을 바깥으로 빼는 방법</span>
+  <h2>WE 배선은 배지를 통과시키지 않는다</h2>
+  <div class="checks">
+    <div class="chk"><h3>WE: 판 위 배선 → 웰 밖 패드</h3><p>WE 배선은 전극 판 위에 인쇄 · 증착된 선으로 웰 벽 아래를 지나 밖으로 나갑니다. 벽 아래 구간은 절연 잉크나 절연 테이프로 덮어, 배지가 배선을 따라 새어 나가거나 배선이 전극 역할을 하지 않게 합니다. SPE는 원래 이렇게 되어 있으므로 웰을 작업전극 둘레에만 붙이면 됩니다.</p></div>
+    <div class="chk"><h3>패드 접촉: 포고핀 · 클립 · 엣지 커넥터</h3><p>웰 밖 패드는 홀더에 고정한 포고핀(스프링 핀)이나 SPE용 엣지 커넥터 · 악어 클립으로 연결합니다. 납땜은 판을 손상시킬 수 있어 피합니다. 홀더에 연결하면 웰을 옮겨도 접촉이 유지됩니다.</p></div>
+    <div class="chk"><h3>RE · CE: 뚜껑으로</h3><p>RE와 CE는 뚜껑에 뚫은 구멍에 고정하고 선은 뚜껑 위로 뺍니다. 구멍은 실리콘 그로밋으로 막아 증발과 오염을 줄입니다.</p></div>
+    <div class="chk"><h3>인큐베이터 밖으로</h3><p>케이블은 인큐베이터의 케이블 포트(뒷면 액세스 포트)로 빼거나, 납작한 리본 케이블을 문 패킹 사이로 지나게 합니다. 문이 꽉 닫히지 않으면 CO₂와 온도가 흔들리니 포트를 쓰는 편이 좋습니다.</p></div>
+    <div class="chk"><h3>잡음</h3><p>케이블은 짧게, 차폐 케이블로. 인큐베이터 팬과 히터가 잡음을 만들 수 있으니 홀더를 금속 망으로 감싸 패러데이 케이지 역할을 하게 하고, 퍼텐쇼스탯 접지에 연결합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Q3 · 배지 교환</span>
+  <h2>전극과 세포를 건드리지 않고 배지 갈기</h2>
+  <div class="checks">
+    <div class="chk"><h3>전극 뚜껑 방식</h3><p>RE · CE를 뚜껑에 고정해 두면 뚜껑을 들어 올리는 것만으로 전극이 함께 빠집니다. 배지를 간 뒤 뚜껑을 다시 덮으면 RE · CE가 매번 같은 위치와 깊이로 돌아옵니다.</p></div>
+    <div class="chk"><h3>벽 쪽 흡입</h3><p>흡입 팁은 웰 벽 쪽 빈 공간(WE에서 떨어진 가장자리)에 비스듬히 대고 천천히 뺍니다. 세포가 마르지 않게 바닥에 얇은 배지층을 남기고, 새 배지는 벽을 따라 천천히 넣습니다. 뚜껑에 흡입 전용 구멍을 따로 두면 팁 위치가 고정됩니다.</p></div>
+    <div class="chk"><h3>관류(perfusion) 방식</h3><p>웰 벽에 입구 · 출구 관을 달아 주사기 펌프로 배지를 바꿉니다. 뚜껑을 열 필요가 없어 오염과 온도 변화가 적고, 측정 중 짧은 배지 교환이나 자극 약물 투입도 할 수 있습니다. 대신 유속이 세포에 전단력을 주고 H₂O₂를 씻어 내므로 측정 중에는 멈추거나 아주 느리게 둡니다.</p></div>
+  </div>
+  <h3>배지 교환 순서</h3>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><p>기록을 멈추거나 교환 시점을 표시합니다. 교환 순간의 전류 변동은 신호가 아닙니다.</p></div>
+    <div class="step"><span class="n">2</span><p>새 배지를 37 °C로 데워 둡니다. 온도 차이는 전류 기준선을 크게 흔듭니다.</p></div>
+    <div class="step"><span class="n">3</span><p>뚜껑(RE · CE 포함)을 들어 소독된 거치대에 둡니다. 관류형이면 이 단계를 건너뜁니다.</p></div>
+    <div class="step"><span class="n">4</span><p>벽 쪽에서 흡입하고, 얇은 층을 남긴 뒤 벽을 따라 새 배지를 넣습니다.</p></div>
+    <div class="step"><span class="n">5</span><p>뚜껑을 다시 덮고 기준선이 안정될 때까지 기다린 뒤(보통 수십 분) 자극이나 측정을 시작합니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>ECIS 8W10E 웰 칩 사양 (웰 바닥 금 전극, 공통 금 패드, 0.8 cm², 600 µL, PC · PET 기판). <a href="https://reach.dog/shop/applied-biophysics-inc/products/8w10e-pet-8-well-array" target="_blank" rel="noopener">판매처</a> · <a href="https://thistlescientific.co.uk/product/ecis-8-well-chamber-with-ten-circular-electrodes-0-49-sqr-mm-lexan-substrate" target="_blank" rel="noopener">Thistle</a></li>
+    <li>유리 칩 · 테플론 홀더 · 포고핀 · Transwell · O-링 구성. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7836059/figure/fig1" target="_blank" rel="noopener">PMC7836059</a></li>
+    <li>PDMS 전기화학 세포 센서, 산소 플라즈마 접합과 3D 프린팅 홀더. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5421692/" target="_blank" rel="noopener">PMC5421692</a></li>
+    <li>세포 배양 공간과 3전극을 통합한 H₂O₂ 센서 칩 (특허). <a href="https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/12492367" target="_blank" rel="noopener">USPTO</a></li>
+    <li>배양 · 측정 · 기준전극 칸 분리 장치. <a href="https://pubs.rsc.org/en/content/articlepdf/2020/lc/c9lc01051c" target="_blank" rel="noopener">Lab Chip 2020</a></li>
+  </ol>
+  <p class="note">접착제 선택, 배선 절연, 케이블 인출, 차폐, 배지 교환 순서는 일반적인 세포 배양 · 전기화학 실험 관행을 바탕으로 한 제 제안입니다. 사용할 접착제 · 웰 제품의 세포 독성과 멸균 조건은 제조사 자료로 확인하세요.</p>
+</section>
+
+</div>
