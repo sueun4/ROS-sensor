@@ -1,0 +1,313 @@
+<title>세포 위 센서와 Transwell 구성</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.stack{display:flex;flex-direction:column;max-width:540px;font-family:var(--mono);font-size:.8rem}
+.stack div{padding:10px 14px;border:1px solid var(--line);border-top:none}
+.stack div:first-child{border-top:1px solid var(--line);border-radius:6px 6px 0 0}
+.stack div:last-child{border-radius:0 0 6px 6px}
+.stack span{display:block;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+.xsec{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.xsec svg{width:100%;min-width:600px;height:auto;display:block}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .n{font-family:var(--mono);color:var(--pb);font-size:.85rem}
+.step p{font-size:.9rem}
+.verdict-box{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;background:var(--non-soft);border-radius:8px;padding:20px}
+.verdict-box .big{font-family:var(--mono);font-size:1rem;font-weight:500;color:var(--non)}
+@media (max-width:560px){.verdict-box{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Cell-on-sensor &amp; Transwell · 2026-11 기준</span>
+  <h1>세포 위 센서와 Transwell 구성</h1>
+  <p class="lede">세포를 센서 표면에서 직접 키울 때 쓸 감지 물질과, 세포를 Transwell 인서트에 키우고 그 아래 SPE로 재는 구성을 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/5yKFZHU3UkLZSr2mkaRwfC" target="_blank" rel="noopener">← 웰 바닥 전극 장착</a> · <a href="https://claude.ai/artifact/Q4B1PoDeDBuqk2AP6pGa75" target="_blank" rel="noopener">Pt 기반 소재</a> · <a href="https://claude.ai/artifact/HiQjyafawbsDhLuLiRWhWD" target="_blank" rel="noopener">바닥 3전극 구성</a></p>
+</header>
+
+<section>
+  <span class="eyebrow">Part 1 · 세포를 센서 위에서 키울 때</span>
+  <h2>감지 물질은 “세포에 무해하고, 배지에서 녹지 않는 것”</h2>
+  <div class="verdict-box">
+    <span class="big">추천</span>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <p><b>탄소(rGO) 또는 ITO 위 Pt-Au · Pt 나노입자 + 얇은 과산화 폴리피롤 + PDL/라미닌.</b></p>
+      <p class="muted">Pt와 Au는 이온이 녹아 나오지 않아 세포 독성이 낮고, pH 7.4 배지에서 PB처럼 녹지 않습니다. 하루 이내 짧은 실험이라면 키토산으로 보호한 PB도 쓸 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>물질</th><th>세포 적합성</th><th>배지 안정성</th><th>근거 · 주의</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>Pt · Pt-Au 나노입자 (탄소 · ITO 위)</td><td>높음 (불활성 금속)</td><td>수 일 이상</td><td>Pt-Au/rGO로 PC12 측정 사례. Pt는 전위를 걸지 않아도 H₂O₂를 분해하는 카탈레이스 유사 활성이 있어 세포 주변 H₂O₂를 낮출 수 있음</td><td><span class="pill go">1순위</span></td></tr>
+      <tr><td>금 나노구조 (수직 나노와이어 등)</td><td>높음, 세포 부착 강함</td><td>수 일 이상</td><td>PDMS 속 금 나노와이어 위에서 세포를 키우며 측정. 감도는 Pt보다 낮아 Pt 장식이 유리</td><td><span class="pill go">기판으로 좋음</span></td></tr>
+      <tr><td>PANI 하이드로겔 + Pt NP (탄소천)</td><td>최대 5일 세포 성장 확인</td><td>수 일</td><td>하이드로겔이 세포 친화적인 표면을 제공</td><td><span class="pill go">장기 배양 후보</span></td></tr>
+      <tr><td>Hemin-G4/Au 하이드로겔 (ITO)</td><td>A549 부착 · 성장</td><td>—</td><td>투명 ITO라 현미경 관찰 가능</td><td><span class="pill mid">관찰 중심</span></td></tr>
+      <tr><td>Prussian Blue (키토산 보호)</td><td>독성 낮음</td><td>수 시간~하루</td><td>PET 위 PB 전극에서 HeLa 직접 배양. 중성 배지에서 서서히 녹음</td><td><span class="pill mid">단기 실험</span></td></tr>
+      <tr><td>PEDOT:PSS</td><td>신경세포 부착 좋음 (GO 도핑 시 24시간 독성 미미)</td><td>양호</td><td>전압을 걸면 PEDOT:PSS 자체가 H₂O₂를 만들 수 있다는 보고. H₂O₂ 감지층으로는 부적합</td><td><span class="pill warn">감지층 비추천</span></td></tr>
+      <tr><td>Cu · CuO, Ag, Co, Ni, Mn 산화물 나노촉매</td><td>낮음 (금속 이온 용출)</td><td>—</td><td>감도는 높지만 세포 독성 위험. Mn은 기저핵 · DA 뉴런에 신경독성이 알려져 있어 중뇌 세포에는 특히 피함</td><td><span class="pill warn">세포 위에는 피함</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h3>권장 적층 (위 → 아래)</h3>
+    <div class="stack" role="list">
+      <div role="listitem" style="background:var(--non-soft)">세포 (중뇌 DA 뉴런 · 미세아교)<span>파종 밀도로 피복률 20–60 % 유지</span></div>
+      <div role="listitem">PDL (+ 1차 뉴런은 라미닌)<span>세포 부착. 코팅 후 감도 재보정</span></div>
+      <div role="listitem" style="background:var(--min-soft)">과산화 폴리피롤 (얇게)<span>도파민 · 아스코르브산 차단. 폴리피롤은 세포 적합성이 알려진 고분자</span></div>
+      <div role="listitem" style="background:var(--pb-soft)">Pt-Au 또는 Pt 나노입자 (전착)<span>H₂O₂ 촉매</span></div>
+      <div role="listitem" style="background:var(--bg)">rGO 또는 ITO<span>지지체. 관찰이 필요하면 ITO</span></div>
+    </div>
+  </div>
+
+  <div class="checks">
+    <div class="chk"><h3>센서가 H₂O₂를 지운다</h3><p>측정 중인 전극은 H₂O₂를 소모하고, Pt는 측정하지 않을 때도 H₂O₂를 분해합니다. 그래서 센서 위 세포는 일반 배양 접시보다 낮은 H₂O₂ 환경에 놓입니다. 같은 기판에 촉매만 뺀 전극(맨 탄소 · ITO)에서도 세포를 키워 형태 · 생존율 · 분화를 비교하세요.</p></div>
+    <div class="chk"><h3>독성 확인 순서</h3><p>(1) 전극 조각을 배지에 담가 하루 둔 우려낸 배지로 세포를 키워 용출 독성 확인, (2) 전극 위 직접 배양 생존율, (3) 전위를 건 상태의 생존율. 세 단계를 모두 통과한 물질만 씁니다.</p></div>
+    <div class="chk"><h3>막 단량체 잔류</h3><p>페닐렌디아민 · 피롤 단량체는 독성이 있으므로 전기중합 후 충분히 세척하고 배지에 담가 둔 뒤 사용합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Part 2 · Transwell 인서트 + 바닥 SPE</span>
+  <h2>세포는 막 위에, 센서는 그 아래 칸에</h2>
+  <p class="muted">세포를 Transwell 다공막 위에서 키우면, 세포가 만든 H₂O₂가 막을 통과해 아래 칸으로 확산되고 바닥의 SPE가 이를 잽니다. 같은 원리로 PET 위 유기 전기화학 트랜지스터(OECT)를 Transwell 아래에 두고, 막 위 세포가 fMLP 자극으로 내보낸 H₂O₂를 0.2 µM 검출한계로 잰 연구가 있습니다(2019). 테플론 홀더로 인서트 막을 유리 칩 3 mm 위에 띄우고 O-링으로 밀봉한 구성도 보고되었습니다.</p>
+
+  <div class="xsec">
+    <svg viewBox="0 0 680 250" role="img" aria-label="Transwell 인서트 막 위의 세포, 그 아래 좁은 칸, 바닥의 스크린 프린팅 전극, 홀더와 O-링, 아래 칸 측면 포트를 보여주는 단면도">
+      <rect x="60" y="210" width="560" height="22" rx="3" fill="var(--vit-soft)" stroke="var(--line)"/>
+      <text x="68" y="225" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">홀더</text>
+      <rect x="140" y="194" width="400" height="16" fill="var(--surface)" stroke="var(--ink)"/>
+      <rect x="290" y="188" width="100" height="6" fill="var(--pb)"/>
+      <rect x="210" y="188" width="40" height="6" fill="var(--inv)"/>
+      <rect x="430" y="188" width="40" height="6" fill="var(--min)"/>
+      <text x="300" y="182" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">WE</text>
+      <text x="214" y="182" font-size="9" fill="var(--inv)" font-family="IBM Plex Mono, monospace">CE</text>
+      <text x="434" y="182" font-size="9" fill="var(--min)" font-family="IBM Plex Mono, monospace">RE</text>
+      <text x="548" y="206" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">바닥 SPE</text>
+      <rect x="160" y="70" width="14" height="124" fill="var(--min-soft)" stroke="var(--min)"/>
+      <rect x="506" y="70" width="14" height="124" fill="var(--min-soft)" stroke="var(--min)"/>
+      <circle cx="167" cy="190" r="5" fill="var(--ink)"/><circle cx="513" cy="190" r="5" fill="var(--ink)"/>
+      <text x="80" y="186" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">O-링</text>
+      <rect x="174" y="150" width="332" height="38" fill="var(--pb-soft)"/>
+      <rect x="174" y="40" width="332" height="106" fill="var(--pb-soft)" opacity=".6"/>
+      <rect x="210" y="30" width="10" height="120" fill="var(--surface)" stroke="var(--ink)"/>
+      <rect x="460" y="30" width="10" height="120" fill="var(--surface)" stroke="var(--ink)"/>
+      <rect x="220" y="144" width="240" height="4" fill="var(--muted)"/>
+      <g fill="var(--non)"><circle cx="250" cy="139" r="5"/><circle cx="280" cy="139" r="5"/><circle cx="310" cy="139" r="5"/><circle cx="340" cy="139" r="5"/><circle cx="370" cy="139" r="5"/><circle cx="400" cy="139" r="5"/><circle cx="430" cy="139" r="5"/></g>
+      <text x="226" y="24" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">Transwell 인서트 (위 칸)</text>
+      <path d="M560 164 H520" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="566" y="168" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">아래 칸 포트</text>
+      <g stroke="var(--pb)" stroke-dasharray="3 3"><line x1="600" y1="148" x2="600" y2="188"/></g>
+      <text x="606" y="172" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">h</text>
+      <text x="240" y="170" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">H₂O₂ ↓ 막 통과 → 아래 칸 확산</text>
+    </svg>
+  </div>
+
+  <div class="tbox" tabindex="0">
+  <table class="t" style="min-width:600px">
+    <thead><tr><th>막-전극 거리 h</th><th>확산 시간 (근사)</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0.5 mm</td><td class="num">≈ 1.5 분</td><td>홀더로 인서트를 낮춘 맞춤형. 실시간에 가장 가까움</td></tr>
+      <tr><td class="num">1 mm</td><td class="num">≈ 6 분</td><td>상용 24웰 인서트의 대략적 높이 (제품마다 다름)</td></tr>
+      <tr><td class="num">3 mm</td><td class="num">≈ 54 분</td><td>테플론 홀더 사례 수준. 누적량 측정에 가까움</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tbox" tabindex="0">
+  <table class="t" style="min-width:600px">
+    <thead><tr><th>세포 (24웰 인서트 0.33 cm², 1×10⁵ /cm²)</th><th>아래 칸 100 µL</th><th>아래 칸 600 µL</th></tr></thead>
+    <tbody>
+      <tr><td>미세아교세포 + PMA</td><td class="num">≈ 5 µM</td><td class="num">≈ 0.8 µM</td></tr>
+      <tr><td>중뇌 DA 뉴런 + 스트레스</td><td class="num">≈ 0.5 µM</td><td class="num">≈ 80 nM</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">30분 누적, 방출의 절반이 아래로 간다고 가정하고 분해는 무시한 상한값입니다. 세포당 방출 속도는 앞 페이지와 같은 가정값입니다. 아래 칸 부피를 줄이는 것이 신호를 키우는 가장 간단한 방법입니다.</p>
+
+  <div class="checks">
+    <div class="chk"><h3>막 선택</h3><p>공극 0.4 µm의 PET 또는 폴리카보네이트 막을 씁니다. 세포가 막을 통과해 아래로 내려가지 않고, H₂O₂ 같은 작은 분자는 자유롭게 통과합니다. 막에도 PDL · 라미닌 코팅을 합니다.</p></div>
+    <div class="chk"><h3>RE · CE도 아래 칸에</h3><p>SPE의 WE · RE · CE가 모두 아래 칸에 있으므로 세포와 기준전극의 은이 직접 닿지 않습니다. 은 이온 확산이 걱정되면 RE에 Nafion을 덮습니다.</p></div>
+    <div class="chk"><h3>아래 칸을 작고 얕게</h3><p>3D 프린팅 홀더에 SPE를 끼우고, 인서트 다리 높이에 맞춰 막이 WE 위 0.5–1 mm에 오도록 단을 만듭니다. 아래 칸은 100 µL 안팎이 되게 설계하고, 거품이 막 아래에 갇히지 않도록 측면 포트를 둡니다.</p></div>
+    <div class="chk"><h3>WE는 막 정중앙 아래</h3><p>막 가장자리 세포에서 나온 H₂O₂는 더 늦게 도달합니다. WE를 막 중앙 아래에 두고, 지름은 막보다 작게 잡습니다.</p></div>
+  </div>
+
+  <h3>운용 방식: 측정할 때만 인서트를 센서 웰로 옮기기</h3>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><p>세포는 평소 일반 24웰 플레이트에서 인서트째 배양합니다. 센서와 무관하게 배지를 자유롭게 갈 수 있습니다.</p></div>
+    <div class="step"><span class="n">2</span><p>측정 직전, 센서 웰(바닥 SPE, 아래 칸에 측정용 완충 배지)을 37 °C로 데우고 기준선을 먼저 안정시킵니다.</p></div>
+    <div class="step"><span class="n">3</span><p>인서트를 핀셋으로 들어 센서 웰로 옮깁니다. 위 칸 배지도 측정용(항산화제 · 피루브산 없는) 배지로 바꿉니다.</p></div>
+    <div class="step"><span class="n">4</span><p>자극을 위 칸에 넣고 30–60분 기록합니다. 끝에 카탈레이스와 표준 H₂O₂ 첨가로 확인 · 보정합니다.</p></div>
+    <div class="step"><span class="n">5</span><p>인서트를 다시 배양 플레이트로 돌려 다음 시점에 같은 세포를 반복 측정합니다. SPE는 교체하거나 세척합니다.</p></div>
+  </div>
+
+  <div class="checks">
+    <div class="chk"><h3>장점</h3><p>세포가 전극 물질 · 전위에 노출되지 않습니다. 센서를 매번 새것으로 바꿀 수 있어 PB 용해나 오염 문제가 작아집니다. 같은 세포를 며칠 · 몇 주에 걸쳐 반복 측정할 수 있고, 뉴런-미세아교 공배양(위 칸 뉴런, 아래 칸 미세아교 등)에도 맞습니다.</p></div>
+    <div class="chk"><h3>단점</h3><p>막과 아래 칸을 거치며 신호가 늦어지고 희석됩니다. 전극 위 직접 배양보다 순간적인 방출(수 초 단위)은 잡기 어렵고, 누적량 · 분 단위 변화를 보는 데 적합합니다. 인서트를 옮길 때의 온도 · 기계 자극이 기준선을 흔들 수 있습니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>Guo 등, Transwell + OECT로 부착 세포 방출 H₂O₂ 측정, Anal. Chem. (2019), 검출한계 0.2 µM. <a href="https://peeref.com/works/19531966" target="_blank" rel="noopener">Peeref</a></li>
+    <li>테플론 홀더로 Transwell 막을 유리 칩 3 mm 위에 두고 O-링 밀봉, 포고핀 연결. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7836059/figure/fig1" target="_blank" rel="noopener">PMC7836059</a></li>
+    <li>살아 있는 조직 위에 센서를 쌓는 비독성 대사물 측정(Biostack). <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8805579/" target="_blank" rel="noopener">PMC8805579</a></li>
+    <li>PEDOT:PSS에 전압을 걸면 H₂O₂가 생길 수 있다는 보고, PEDOT/GO 신경세포 적합성. <a href="https://pubs.rsc.org/en/content/articlehtml/2024/tc/d3tc02849f" target="_blank" rel="noopener">J. Mater. Chem. C 2024</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4433042" target="_blank" rel="noopener">PMC4433042</a></li>
+    <li>IrOx · CNT · PEDOT 복합 전극의 신경세포 적합성. <a href="https://digital.csic.es/handle/10261/177127" target="_blank" rel="noopener">CSIC</a></li>
+    <li>Pt-Au/rGO PC12 측정 <a href="https://pubs.rsc.org/en/content/getauthorversionpdf/c4an02056a" target="_blank" rel="noopener">RSC</a> · 금 나노와이어 위 세포 <a href="https://pubmed.ncbi.nlm.nih.gov/31549803/" target="_blank" rel="noopener">PubMed 31549803</a> · PANI 하이드로겔 5일 <a href="https://pubs.rsc.org/en/Content/ArticleLanding/2021/TB/D1TB01885J" target="_blank" rel="noopener">RSC</a> · ITO Hemin-G4/Au <a href="https://pubs.rsc.org/en/Content/ArticleLanding/2021/AN/D1AN00875G" target="_blank" rel="noopener">Analyst</a> · PB-PET HeLa <a href="https://research.unite.it/handle/11575/111050" target="_blank" rel="noopener">Unite</a></li>
+  </ol>
+  <p class="note">확산 시간과 누적 농도는 명시한 가정으로 계산한 근사치입니다. Pt의 카탈레이스 유사 활성, 금속 이온 독성, Mn의 신경독성, 막 공극 선택, 상용 인서트 높이, 홀더 설계와 운용 순서는 배경지식과 제 제안이니 사용할 제품 사양과 예비 실험으로 확인하세요.</p>
+</section>
+
+</div>
