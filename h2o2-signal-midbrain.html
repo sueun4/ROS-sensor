@@ -1,0 +1,299 @@
+<title>H₂O₂ 신호와 중뇌 모델</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.trace svg{width:100%;height:auto;display:block}
+.trace{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.verdict-box{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;background:var(--min-soft);border-radius:8px;padding:20px}
+.verdict-box .big{font-family:var(--mono);font-size:1.05rem;font-weight:500;color:var(--min);white-space:nowrap}
+@media (max-width:520px){.verdict-box{grid-template-columns:1fr}}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.formula{font-family:var(--mono);font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Signal &amp; midbrain models · 2026-11 기준</span>
+  <h1>H₂O₂ 신호와 중뇌 모델</h1>
+  <p class="lede">전극으로 H₂O₂를 재면 실제로 무엇이 찍히는지, 그 신호에서 무엇을 얼마나 정확히 읽어낼 수 있는지, 그리고 중뇌 세포와 중뇌 오가노이드에서 신호가 어느 정도일지를 추정했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/QLUYEZ6EMAkLiwFqMF7KcA" target="_blank" rel="noopener">← 전체 지도</a> · <a href="https://claude.ai/artifact/1dt84DGVPLK3dqzopHbiPA" target="_blank" rel="noopener">세포 · 오가노이드 설계</a> · <a href="https://claude.ai/artifact/AxT5DPL3tSPdWYeEKjUmPG" target="_blank" rel="noopener">뇌세포 전극 설계</a></p>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 무엇이 찍히나</span>
+  <h2>얻는 신호는 시간에 따른 환원 전류다</h2>
+  <p class="muted">PB 전극을 약 −50 mV에 고정하면 H₂O₂ 한 분자가 전자 2개를 받아 환원되며 전류가 흐릅니다(H₂O₂ + 2e⁻ → 2OH⁻). 그래서 기본 신호는 <b>전류–시간 곡선(크로노암페로그램)</b>이고, 여기서 아래 지표들을 뽑습니다.</p>
+  <div class="trace">
+    <svg viewBox="0 0 640 230" role="img" aria-label="기준선, 자극 후 전류 상승, 최고점, 감소, 카탈레이스 첨가 후 소실, 표준 H₂O₂ 첨가 단계를 보여주는 크로노암페로그램 모식도">
+      <line x1="50" y1="190" x2="620" y2="190" stroke="var(--line)"/>
+      <line x1="50" y1="20" x2="50" y2="190" stroke="var(--line)"/>
+      <text x="56" y="16" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">|환원 전류| (nA)</text>
+      <text x="560" y="208" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">시간 (분)</text>
+      <path d="M50 160 L60 161 L70 159 L80 160 L90 161 L100 160 L120 160" fill="none" stroke="var(--pb)" stroke-width="2"/>
+      <path d="M120 160 C135 150 145 70 175 62 C205 58 225 85 260 105 C300 125 330 128 360 130" fill="none" stroke="var(--pb)" stroke-width="2"/>
+      <path d="M120 160 C135 150 145 70 175 62 C205 58 225 85 260 105 C300 125 330 128 360 130 L360 160 L120 160 Z" fill="var(--pb-soft)" opacity=".7"/>
+      <path d="M360 130 C370 150 378 158 390 160 L450 160" fill="none" stroke="var(--pb)" stroke-width="2"/>
+      <path d="M450 160 L470 160 L472 120 L520 120 L522 80 L570 80" fill="none" stroke="var(--inv)" stroke-width="2"/>
+      <g stroke="var(--muted)" stroke-dasharray="3 3"><line x1="120" y1="40" x2="120" y2="190"/><line x1="360" y1="40" x2="360" y2="190"/><line x1="470" y1="40" x2="470" y2="190"/></g>
+      <g font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">
+        <text x="58" y="150">① 기준선</text>
+        <text x="124" y="36">자극(PMA·MPP⁺)</text>
+        <text x="180" y="54">② 최고 전류 ΔI</text>
+        <text x="200" y="150">③ 면적 = 전하 Q</text>
+        <text x="270" y="96">④ 감소 시간</text>
+        <text x="364" y="36">카탈레이스</text>
+        <text x="368" y="176">⑤ 신호 소실</text>
+        <text x="474" y="36">표준 H₂O₂ 첨가</text>
+        <text x="526" y="112">⑥ 회수율 · 보정</text>
+      </g>
+    </svg>
+    <p class="muted" style="font-size:.85rem">모식도입니다. 실제 곡선 모양은 세포와 자극에 따라 달라집니다(PMA는 수 분 안에 상승, LPS는 수 시간에 걸친 완만한 증가).</p>
+  </div>
+
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>지표</th><th>계산</th><th>의미</th><th>신뢰도</th></tr></thead>
+    <tbody>
+      <tr><td>① 기준선 전류</td><td>자극 전 평균 · 표준편차</td><td>기저 H₂O₂ + 배경 전류. 표준편차가 검출한계를 정함</td><td><span class="pill mid">배경과 분리 어려움</span></td></tr>
+      <tr><td>② 최고 전류 ΔI</td><td>최고점 − 기준선 → 보정곡선으로 µM 환산</td><td>방출 세기. 세포 수로 나눠 비교</td><td><span class="pill go">상대 비교에 강함</span></td></tr>
+      <tr><td>③ 총 전하 Q</td><td>곡선 아래 면적, 몰수 = Q / (2F)</td><td>자극 동안 전극이 잡은 H₂O₂ 총량</td><td><span class="pill mid">수집 효율을 모르면 하한값</span></td></tr>
+      <tr><td>④ 시간 지표</td><td>반응 지연, 최고점 도달 시간, 감소 반감기</td><td>생성 경로(NOX는 빠르고, 미토콘드리아는 느림)와 세포의 제거 능력</td><td><span class="pill go">초~분 단위로 강함</span></td></tr>
+      <tr><td>⑤ 약리학적 확인</td><td>카탈레이스로 소실, SOD로 증가, DPI · 아포시닌(NOX 억제), 로테논 · 안티마이신(미토콘드리아)</td><td>신호가 H₂O₂인지, 어디서 왔는지</td><td><span class="pill go">특이성 증명의 핵심</span></td></tr>
+      <tr><td>⑥ 표준 첨가 회수율</td><td>실험 끝에 알려진 H₂O₂를 넣어 반응 비교</td><td>세포가 덮은 상태의 실제 감도</td><td><span class="pill go">정량 보정</span></td></tr>
+      <tr><td>용량-반응</td><td>자극 농도별 ΔI → EC₅₀</td><td>약물 · 독소 효과 비교</td><td><span class="pill go">스크리닝에 적합</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card">
+    <h3>보조 측정: CV · DPV</h3>
+    <p class="muted">연속 측정 사이사이에 CV를 돌려 PB 피크가 줄었는지(전극 열화)를 확인하고, 일정 시간 쌓인 배지를 DPV로 재면 연속 측정보다 잡음이 적어 낮은 농도의 누적량을 읽기 좋습니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 신호 크기 추정</span>
+  <h2>얼마나 큰 신호가 나올까</h2>
+  <p class="muted">아래는 가정을 명시한 대략 계산입니다. 작업전극 Ø 4 mm(0.126 cm²) 위에 세포 1×10⁴개, 세포 바닥에서 나온 H₂O₂의 절반을 전극이 잡는다고 두었습니다.</p>
+  <div class="formula">I = 2 · F · (세포 수 × 세포당 방출 속도 × 수집 효율) &nbsp;&nbsp; F = 96,485 C/mol</div>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>상황</th><th>방출 속도 가정</th><th>연속 측정 전류</th><th>300 µL에 30분 누적</th><th>SPE로 가능?</th></tr></thead>
+    <tbody>
+      <tr><td>미세아교세포 + PMA</td><td class="num">1 nmol/min/10⁶ 세포</td><td class="num">≈ 16 nA</td><td class="num">≈ 1 µM</td><td><span class="pill go">충분</span></td></tr>
+      <tr><td>중뇌 DA 뉴런 + 스트레스 (MPP⁺ · 로테논, 기저의 약 5배)</td><td class="num">0.1 nmol/min/10⁶</td><td class="num">≈ 1.6 nA</td><td class="num">≈ 100 nM</td><td><span class="pill mid">경계 · 잡음 관리 필요</span></td></tr>
+      <tr><td>중뇌 DA 뉴런 기저 상태</td><td class="num">0.02 nmol/min/10⁶</td><td class="num">≈ 0.3 nA</td><td class="num">≈ 20 nM</td><td><span class="pill warn">어려움</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="checks">
+    <div class="chk"><h3>전극 감도</h3><p>PB-SPE 감도를 0.05–0.5 A·M⁻¹·cm⁻²로 잡으면 Ø 4 mm 전극에서 1 µM당 약 6–60 nA입니다. 보고된 PB 프린팅 전극의 검출한계는 약 2 µM 수준입니다.</p></div>
+    <div class="chk"><h3>판단 기준</h3><p>배지 속 SPE의 기준선 잡음은 대략 0.1–1 nA로 봅니다. 신호가 잡음의 3배를 넘어야 하므로, 스트레스 받은 DA 뉴런(약 1.6 nA)은 아슬아슬하고 기저 상태(약 0.3 nA)는 연속 측정으로 보기 어렵습니다.</p></div>
+    <div class="chk"><h3>신호를 키우는 방법</h3><p>Pt 나노입자 · 나노자임으로 감도 향상, 세포 수 증가(Ø 4 mm에 2–3×10⁴), 측정 부피를 50–100 µL로 줄여 누적 농도 높이기, 연속 측정 대신 누적 후 DPV, 패러데이 케이지와 차동(세포 있는/없는 전극) 측정으로 잡음 줄이기.</p></div>
+  </div>
+  <p class="note">세포당 방출 속도는 문헌에서 흔히 보이는 크기 수준을 가정한 값이며 세포 · 조건에 따라 몇 배씩 달라집니다. 실제 값은 같은 조건에서 Amplex Red 같은 형광법으로 먼저 확인하는 것을 권합니다. 누적 계산은 분해가 없다고 가정한 상한값입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 중뇌 세포</span>
+  <h2>중뇌 세포로 진행할 때</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>모델</th><th>특징</th><th>H₂O₂ 측정 관점</th></tr></thead>
+    <tbody>
+      <tr><td>LUHMES</td><td>사람 중뇌 유래, 약 6일 분화로 DA 뉴런 표현형. MPP⁺ 독성 연구에 많이 쓰임</td><td>균일하고 재현성이 좋아 1차 후보</td></tr>
+      <tr><td>iPSC 유래 mDA 뉴런</td><td>환자 유래(예: LRRK2, SNCA 변이) 비교 가능. 분화에 수 주</td><td>질병 모델 비교에 가치. 비용 · 편차 큼</td></tr>
+      <tr><td>1차 복측 중뇌 배양</td><td>쥐 배아 중뇌. DA 뉴런 + 성상 · 미세아교 혼합</td><td>실제 조성에 가깝지만 DA 뉴런 비율이 낮음</td></tr>
+      <tr><td>SH-SY5Y · N27</td><td>신경모세포종 · 쥐 중뇌 유래 세포주</td><td>예비 실험용. 진짜 중뇌 DA 뉴런은 아님</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="checks">
+    <div class="chk"><h3>도파민 퀴논 간섭</h3><p>도파민이 자동산화하면 도파민 퀴논이 생기는데, 이것은 PB 측정 전위(−50 mV 근처)에서 환원 전류를 낼 수 있습니다. H₂O₂로 오인될 수 있으므로 카탈레이스로 신호가 사라지는지 반드시 확인하세요.</p></div>
+    <div class="chk"><h3>아스코르브산</h3><p>mDA 분화 배지에는 보통 아스코르브산(약 200 µM)이 들어갑니다. 배지 안에서 자동산화해 세포 없이도 H₂O₂를 만들고, 동시에 H₂O₂를 소거하기도 합니다. 측정 구간에는 빼고 세포 없는 배지 대조군을 둡니다.</p></div>
+    <div class="chk"><h3>독소 자체의 신호</h3><p>6-OHDA와 L-DOPA · 도파민 첨가는 세포 없이도 H₂O₂를 만듭니다. MPP⁺ · 로테논은 이런 문제가 적어 첫 자극으로 더 깔끔합니다.</p></div>
+    <div class="chk"><h3>미세아교세포 추가</h3><p>중뇌 손상에서 큰 ROS 신호는 주로 미세아교세포에서 나옵니다. DA 뉴런 단독 신호가 작으면, 뉴런 + 미세아교 공배양에 LPS를 주는 구성이 신호와 생물학적 의미를 모두 키웁니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 오가노이드 vs 세포</span>
+  <div class="verdict-box">
+    <span class="big">대체로 더 작고, 편차가 크다</span>
+    <p>중뇌 오가노이드 하나에는 2D 전극 위보다 세포가 더 많지만(지름 1 mm에 약 5×10⁴, 2 mm에 약 4×10⁵개로 추정), 전극이 받는 신호는 대개 더 작습니다. 안쪽에서 만든 H₂O₂는 조직의 카탈레이스 · GPx에 분해되면서 바깥으로 나오기 전에 사라지고, 둥근 오가노이드는 평평한 전극에 닿는 면적이 아주 좁기 때문입니다.</p>
+  </div>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>구성</th><th>전체 세포 (추정)</th><th>신호에 기여하는 세포 (추정)</th><th>예상 신호</th></tr></thead>
+    <tbody>
+      <tr><td>2D, Ø 4 mm 전극 위 직접 배양</td><td class="num">≈ 1×10⁴</td><td class="num">≈ 1×10⁴ (모두 전극 위)</td><td>기준</td></tr>
+      <tr><td>오가노이드 Ø 1 mm, 전극 위에 놓음</td><td class="num">≈ 5×10⁴</td><td class="num">접촉부 ≈ 1.5×10³ · 바깥층 ≈ 2×10⁴</td><td>직접 접촉 신호는 2D의 약 1/5–1/10. 나머지는 배지로 희석되어 늦게 도달</td></tr>
+      <tr><td>오가노이드 Ø 2 mm</td><td class="num">≈ 4×10⁵</td><td class="num">바깥층 ≈ 9×10⁴ (21 %)</td><td>총량은 크지만 중심 괴사 코어 신호는 밖으로 못 나옴</td></tr>
+      <tr><td>오가노이드 절편 (300 µm, 약 5 mm² 접촉)</td><td class="num">—</td><td class="num">아래 75 µm 층 ≈ 4×10⁴</td><td>2D와 비슷하거나 더 큼. 가장 유망한 형태</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">가정: 조직 세포 밀도 약 10⁵ 개/mm³, H₂O₂가 조직 안에서 분해되기 전 퍼지는 거리 약 75 µm(뇌 조직 반감기 2.2 s, 유효 확산계수 2.5×10⁻⁵ cm²/s로 계산), 접촉 면적은 지름 0.5 mm 원으로 둠. 모두 크기 수준만 보는 추정입니다.</p>
+  <div class="checks">
+    <div class="chk"><h3>추가 불리한 점</h3><p>보통의 중뇌 오가노이드에는 미세아교세포가 없어 큰 ROS 공급원이 빠져 있습니다. 매트리젤이 확산을 막고, 크기 · 모양 편차 때문에 오가노이드마다 신호가 크게 다릅니다.</p></div>
+    <div class="chk"><h3>오가노이드를 쓴다면</h3><p>공기-액체 계면 절편(300 µm 안팎)을 전극 위에 올려 접촉 면적을 키우거나, 오가노이드가 꼭 맞는 마이크로웰 전극(지름 1–1.5 mm, 배지 50 µL 이하)을 씁니다. 신호는 오가노이드 크기(이미지 면적)나 DNA 양으로 정규화합니다.</p></div>
+    <div class="chk"><h3>권장 순서</h3><p>LUHMES 또는 iPSC-mDA 2D로 측정법과 약리 대조군을 먼저 확립하고, 미세아교 공배양으로 신호를 확인한 뒤, 오가노이드 절편으로 넘어가는 순서를 권합니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">근거와 한계</span>
+  <ol>
+    <li>PB 프린팅 전극의 세포 직접 배양 측정과 검출한계 1.9 µM. <a href="https://research.unite.it/handle/11575/111050" target="_blank" rel="noopener">Unite</a></li>
+    <li>뇌 조직 H₂O₂ 반감기 약 2.2 s, 유효 확산계수 약 2.5×10⁻⁵ cm²/s (Redox Biology 2022). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8804256" target="_blank" rel="noopener">PMC8804256</a></li>
+    <li>스페로이드 배양 3일째부터 H₂O₂ 증가와 괴사 코어 형성 (2025). <a href="https://cris.unibo.it/bitstream/11585/1010978/1/gupta-et-al-2025-real-time-visualization-of-endogenous-h2o2-production-in-mammalian-spheroids-by.pdf" target="_blank" rel="noopener">PDF</a></li>
+    <li>미세아교세포 SECM ROS 측정 (2024). <a href="https://pubs.rsc.org/en/content/articlelanding/2023/sc/d3sc03504b" target="_blank" rel="noopener">Chem. Sci.</a></li>
+  </ol>
+  <p class="note">신호 크기, 세포 수, 오가노이드 기여 세포 수는 명시한 가정에 따른 계산입니다. PB 감도 범위, 세포당 방출 속도, 도파민 퀴논 · 아스코르브산 간섭, LUHMES 특성, 오가노이드 절편 배양은 배경지식으로 적었으니 실험 전에 원문과 예비 실험으로 확인하세요.</p>
+</section>
+
+</div>
