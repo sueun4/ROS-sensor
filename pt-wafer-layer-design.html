@@ -1,0 +1,312 @@
+<title>Pt 웨이퍼 적층 전극 설계</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.props{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.prop{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;border-top:4px solid var(--pb)}
+.prop ul{margin:0;padding-left:18px;font-size:.86rem;color:var(--muted)}
+.prop li{margin:3px 0}
+.xsec{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.xsec svg{width:100%;min-width:640px;height:auto;display:block}
+.layers{display:flex;flex-direction:column}
+.layer{display:grid;grid-template-columns:56px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.layer:last-child{border-bottom:1px solid var(--line)}
+.layer .n{font-family:var(--mono);color:var(--pb);font-size:.82rem}
+.layer p{font-size:.9rem}
+.layer .what{font-size:.84rem;color:var(--muted)}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.lessons{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.lesson{background:var(--pb-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.lesson h3{font-size:.95rem;color:var(--pb)}
+.lesson p{font-size:.86rem}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Pt wafer · cell-on-sensor · 2026-11 기준</span>
+  <h1>Pt 웨이퍼 적층 전극 설계</h1>
+  <p class="lede">Pt 웨이퍼 위에 층을 쌓아 중뇌 세포를 전극 위에서 키우며 H₂O₂를 재는 센서를 만들 때, 선택성 · 민감성 · 장기 안정성을 위해 각 층이 가져야 할 특성을 정리했습니다. H₂O₂가 아니더라도 세포 배양 배지에서 오래 측정한 전극들(포도당 · 젖산 · 산소 · 글루탐산 · 도파민 · NO)이 어떤 층을 썼는지도 함께 비교했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/6Vtqxwo6VKwCi442K7rd6W" target="_blank" rel="noopener">← 중뇌 센서 최적화</a> · <a href="https://claude.ai/artifact/Q4B1PoDeDBuqk2AP6pGa75" target="_blank" rel="noopener">Pt 기반 소재</a> · <a href="https://claude.ai/artifact/Jhj7r9fMbCpMx3BLqPW1T1" target="_blank" rel="noopener">세포 위 센서</a></p>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 요구 특성</span>
+  <h2>세 가지 목표에 필요한 특성</h2>
+  <div class="props">
+    <div class="prop" style="border-top-color:var(--pb)">
+      <h3>민감성</h3>
+      <ul>
+        <li>전기화학 활성 면적이 넓을 것 (거칠게 만든 Pt, 나노구조 Pt)</li>
+        <li>낮은 전위에서 H₂O₂ 반응이 빠를 것</li>
+        <li>위에 쌓는 막이 얇아 H₂O₂ 확산을 크게 막지 않을 것</li>
+        <li>배경 전류와 잡음이 작을 것 (작은 기생 면적, 좋은 절연)</li>
+      </ul>
+    </div>
+    <div class="prop" style="border-top-color:var(--min)">
+      <h3>선택성</h3>
+      <ul>
+        <li>도파민 · 아스코르브산이 반응하지 않는 낮은 측정 전위</li>
+        <li>크기로 걸러내는 선택투과막 (작은 H₂O₂만 통과)</li>
+        <li>같은 칩 위 카탈레이스 센티널 전극으로 차감</li>
+        <li>막의 선택성이 며칠 동안 유지될 것 (PmPD는 하루 만에 떨어짐)</li>
+      </ul>
+    </div>
+    <div class="prop" style="border-top-color:var(--non)">
+      <h3>장기 안정성</h3>
+      <ul>
+        <li>Pt 박막과 그 위 층이 배지에서 벗겨지지 않을 것 (접착층 · 기계적 안정)</li>
+        <li>촉매가 중성 배지에서 녹지 않을 것 (PB 제외 이유)</li>
+        <li>절연층이 배지에 부식되지 않을 것</li>
+        <li>단백질 · 세포 부착에도 감도가 크게 떨어지지 않을 것, 떨어져도 재보정 가능할 것</li>
+        <li>모든 층이 세포에 무해할 것</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 적층 구조</span>
+  <h2>Pt 웨이퍼 위 층 구성</h2>
+  <div class="xsec">
+    <svg viewBox="0 0 720 260" role="img" aria-label="Pt 웨이퍼 적층 단면도: 기판, 접착층, Pt 박막, 절연층, 거칠게 만든 Pt, 선택투과막, 세포 부착층, 세포. 오른쪽에 카탈레이스 센티널 전극">
+      <rect x="20" y="214" width="680" height="30" fill="var(--vit-soft)" stroke="var(--line)"/>
+      <text x="28" y="234" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">L0 기판: Si/SiO₂ 또는 유리</text>
+      <rect x="20" y="208" width="680" height="6" fill="var(--muted)"/>
+      <text x="560" y="204" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">Ti 또는 Ta 접착층</text>
+      <rect x="60" y="196" width="280" height="12" fill="var(--pb)"/>
+      <rect x="420" y="196" width="220" height="12" fill="var(--pb)"/>
+      <text x="64" y="192" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">L1 Pt 박막 (H₂O₂ 전극)</text>
+      <text x="424" y="192" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">L1 Pt 박막 (센티널)</text>
+      <rect x="20" y="180" width="80" height="16" fill="var(--ink)" opacity=".25"/>
+      <rect x="300" y="180" width="160" height="16" fill="var(--ink)" opacity=".25"/>
+      <rect x="600" y="180" width="100" height="16" fill="var(--ink)" opacity=".25"/>
+      <text x="320" y="176" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">L2 절연층 (창만 열림)</text>
+      <path d="M100 196 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0" fill="none" stroke="var(--pb)" stroke-width="2"/>
+      <path d="M460 196 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0 q6 -8 12 0" fill="none" stroke="var(--pb)" stroke-width="2"/>
+      <text x="110" y="168" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">L3 거칠게 만든 Pt · 나노 Pt</text>
+      <rect x="100" y="150" width="200" height="8" fill="var(--min-soft)" stroke="var(--min)"/>
+      <rect x="460" y="150" width="140" height="8" fill="var(--min-soft)" stroke="var(--min)"/>
+      <text x="110" y="146" font-size="9" fill="var(--min)" font-family="IBM Plex Mono, monospace">L4 선택투과막 (과산화 PPy)</text>
+      <rect x="460" y="138" width="140" height="10" fill="var(--inv-soft)" stroke="var(--inv)"/>
+      <text x="470" y="134" font-size="9" fill="var(--inv)" font-family="IBM Plex Mono, monospace">L5 카탈레이스 + BSA/GA</text>
+      <rect x="100" y="140" width="200" height="6" fill="var(--non-soft)"/>
+      <rect x="460" y="128" width="140" height="6" fill="var(--non-soft)"/>
+      <text x="110" y="134" font-size="9" fill="var(--non)" font-family="IBM Plex Mono, monospace">L6 PDL/라미닌</text>
+      <g fill="var(--non)"><circle cx="140" cy="128" r="7"/><circle cx="180" cy="128" r="7"/><circle cx="220" cy="128" r="7"/><circle cx="260" cy="128" r="7"/><circle cx="500" cy="117" r="7"/><circle cx="540" cy="117" r="7"/><circle cx="580" cy="117" r="7"/></g>
+      <text x="180" y="104" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">중뇌 세포</text>
+      <text x="500" y="94" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">같은 세포 조건</text>
+    </svg>
+  </div>
+  <div class="layers">
+    <div class="layer"><span class="n">L0–L1</span><div><p><b>기판 + 접착층 + Pt 박막</b></p><p class="what">산화물 기판에 Pt를 바로 올리면 잘 붙지 않아 Ti 또는 Ta 접착층을 씁니다. 박막 전극은 공정 · 담금 시험 · 생체 내 사용 중 벗겨짐이 주요 고장 원인으로 보고되었습니다. Ti는 폴리이미드 위에서는 가속 담금 시험에서 약했고, SiC 위에서는 7일 후에도 벗겨지지 않았습니다. Si/SiO₂나 유리 기판에 Ti 또는 Ta를 쓰고, 담금 시험으로 직접 확인하세요.</p></div></div>
+    <div class="layer"><span class="n">L2</span><div><p><b>절연층 (작업창만 열기)</b></p><p class="what">배선과 전극 둘레를 덮어 기생 면적을 없앱니다. 장기 신경세포 배양에서 BrainPhys 배지가 Si₃N₄ 절연층을 NDM 배지보다 더 부식시켰다는 보고가 있어, 사용할 배지로 절연층 담금 시험을 해야 합니다. SiO₂/Si₃N₄ 적층, SU-8, 파릴렌, 폴리이미드가 후보입니다.</p></div></div>
+    <div class="layer"><span class="n">L3</span><div><p><b>표면적 확대: 전기화학적으로 거칠게 만든 Pt (1순위), 또는 나노 Pt · Pt-Au 전착</b></p><p class="what">Pt 미세전극을 전기화학적으로 거칠게 만들면 H₂O₂ 감도가 올라갔습니다(2025, 글루탐산 · GABA 센서). 같은 Pt라 덧붙인 층이 없어 벗겨질 걱정이 가장 적습니다. Pt 블랙은 감도가 높지만 장기 사용 시 기계적으로 불안정하다고 알려져, 쓴다면 폴리도파민 접착층을 번갈아 쌓아 고정하는 방법이 제안되었습니다.</p></div></div>
+    <div class="layer"><span class="n">L4</span><div><p><b>선택투과막: 과산화 폴리피롤 (또는 PoPD)</b></p><p class="what">Pt 위에 바로 전기중합되어 두께를 전하량으로 조절할 수 있고, 아스코르브산 대비 H₂O₂ 선택성 130배 이상 · 2주 안정성이 보고되었습니다. PmPD는 처음 선택성은 좋지만 하루 만에 떨어져 장기용으로는 피합니다.</p></div></div>
+    <div class="layer"><span class="n">L5</span><div><p><b>센티널 전극만: 카탈레이스 + BSA/글루타르알데히드</b></p><p class="what">같은 웨이퍼에 똑같이 만든 두 번째 전극에만 카탈레이스를 BSA와 함께 가교합니다. 글루탐산 센서들이 효소를 BSA/글루타르알데히드로 고정하는 표준 방법과 같습니다. 손으로 바르면 두께가 들쭉날쭉해 성능 편차가 생긴다고 보고되었으니 스핀 · 스프레이 · 일정량 점적으로 균일하게 만듭니다.</p></div></div>
+    <div class="layer"><span class="n">L6</span><div><p><b>세포 부착층: PDL / 라미닌 (얇게)</b></p><p class="what">두 전극 모두 같은 코팅을 해야 차감이 맞습니다. 코팅 후 재보정합니다.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 다른 분석 대상 사례</span>
+  <h2>세포 배양 배지에서 측정한 전극들</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>분석 대상</th><th>전극 기판</th><th>층 구성</th><th>배지 · 세포 조건</th><th>안정성 · 성능</th><th>우리 센서에 주는 교훈</th></tr></thead>
+    <tbody>
+      <tr><td>산소 · 포도당 · 젖산</td><td>투명 칩 위 박막 전극</td><td>효소 센서 + 산소 센서 통합</td><td>장기 칩 위 세포 배양</td><td>1주 이상 안정</td><td>박막 전극도 배지에서 1주 이상 갈 수 있음. 칩 단위 통합이 가능</td></tr>
+      <tr><td>포도당 (오스뮴 고분자)</td><td>스크린 프린팅 Pt 어레이</td><td>오스뮴 산화환원 하이드로겔 + 얇은 PEDOT</td><td>세포 배양 응용</td><td>가교 최적화와 PEDOT 박막으로 고분자 유실 감소</td><td>위층이 녹아 나가지 않게 가교도를 높이고 얇은 고분자로 덮음</td></tr>
+      <tr><td>글루탐산 · GABA</td><td>Pt 미세전극 어레이</td><td>산화효소 + BSA/글루타르알데히드, 그 위 mPD 배제층</td><td>신경 조직 · 세포</td><td>Pt를 거칠게 만들면 H₂O₂ 감도 상승. 수작업 도포는 편차 큼</td><td>H₂O₂를 내부 신호로 쓰는 센서라 우리 구조와 거의 같음. 센티널 층 제작법 참고</td></tr>
+      <tr><td>도파민</td><td>유연 MEA</td><td>산 처리 CNT를 도핑한 PEDOT</td><td>시험관 내</td><td>임피던스와 도파민 검출(SWV) 4주 안정</td><td>전도성 고분자 + CNT 복합층은 수 주 안정. 다만 PEDOT:PSS는 전압에서 H₂O₂를 만들 수 있어 우리 감지층으로는 부적합</td></tr>
+      <tr><td>도파민</td><td>Pt 미세전극</td><td>CNT + 탄소양자점 + 폴리피롤</td><td>—</td><td>CNT-PEDOT보다 우수</td><td>Pt 위 폴리피롤 복합층이 PEDOT보다 나은 경우가 있음</td></tr>
+      <tr><td>도파민 (양자 방출)</td><td>미세 흑연화 다이아몬드 MEA</td><td>다이아몬드 자체</td><td>1차 중뇌 배양 세포를 전극 위에서 배양</td><td>KCl 자극 방출과 발화를 함께 기록</td><td>중뇌 세포를 전극 위에서 키우며 재는 것이 실제로 가능함을 보여 줌</td></tr>
+      <tr><td>도파민</td><td>탄소 전극</td><td>CNT + 금 나노입자</td><td>iPSC 유래 DA 뉴런</td><td>도파민 방출 검출</td><td>iPSC 중뇌 뉴런에서 전기화학 측정 선례</td></tr>
+      <tr><td>NO</td><td>Pt 디스크 미세전극 (50 µm)</td><td>피롤 결합 Mn 포르피린 전기중합 + Nafion 딥코팅</td><td>내피세포 (전해질 방울)</td><td>NO 촉매 활성, Nafion이 아질산 차단</td><td>Pt 위 전기중합 촉매층 + 얇은 이온 선택막 구성의 선례</td></tr>
+      <tr><td>H₂O₂</td><td>rGO · 탄소천 · 금 나노와이어</td><td>Pt-Au NP, PANI 하이드로겔 + Pt NP, Au NW</td><td>PC12, 각종 세포 직접 배양</td><td>하이드로겔 전극 위 5일 성장</td><td>세포 직접 배양 H₂O₂ 측정의 직접 선례</td></tr>
+      <tr><td>H₂O₂</td><td>Pt 이중 전극</td><td>카탈레이스 유무 한 쌍 + Nafion · PPD</td><td>자유행동 쥐 뇌</td><td>12일 안정</td><td>센티널 차감의 장기 선례</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>공통적으로 쓰인 설계 원칙</h3>
+  <div class="lessons">
+    <div class="lesson"><h3>Pt 표면적부터 키운다</h3><p>거칠게 만들거나 나노구조를 올려 감도를 확보하고, 그 위에 막을 쌓아 일부 감도를 내주는 방식이 표준입니다.</p></div>
+    <div class="lesson"><h3>크기 배제막은 거의 필수</h3><p>글루탐산 · 도파민 · NO · H₂O₂ 센서 모두 mPD · PPD · PPy 같은 전기중합 막이나 Nafion을 썼습니다. 장기용은 안정성이 확인된 막을 골라야 합니다.</p></div>
+    <div class="lesson"><h3>위층은 가교로 붙잡는다</h3><p>효소 · 하이드로겔 층은 BSA/글루타르알데히드나 높은 가교도로 고정해 배지로 녹아 나가지 않게 합니다.</p></div>
+    <div class="lesson"><h3>전도성 복합층은 수 주를 버틴다</h3><p>PEDOT/CNT, PPy 복합층은 4주 안정성이 보고되었습니다. 다만 H₂O₂ 측정에서는 고분자 자체의 H₂O₂ 생성 여부를 확인해야 합니다.</p></div>
+    <div class="lesson"><h3>기판 · 절연 · 배지 궁합</h3><p>층이 아무리 좋아도 박막 박리와 절연층 부식이 먼저 고장 납니다. 실제 배지로 담금 시험을 하는 것이 필수입니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 검증 계획</span>
+  <h2>만들고 나서 확인할 것</h2>
+  <div class="checks">
+    <div class="chk"><h3>담금 시험</h3><p>세포 없이 실제 배지(중뇌 분화 배지)에 37 °C로 1–4주 담가 두고, 매일 또는 이틀마다 H₂O₂ 보정곡선, 임피던스, 절연 누설을 측정합니다. 광학현미경으로 박리 · 균열을 봅니다.</p></div>
+    <div class="chk"><h3>층별 기여도</h3><p>L3까지, L4까지, L5까지 만든 전극을 각각 두고 감도 · 선택성 · 안정성을 비교해 각 층의 득실을 수치로 남깁니다.</p></div>
+    <div class="chk"><h3>선택성 시험</h3><p>아스코르브산 200 µM, 도파민 10 µM, L-DOPA, 도파민 퀴논(산화시킨 도파민 용액)에 대한 차감 신호 비율을 첫날과 마지막 날 비교합니다.</p></div>
+    <div class="chk"><h3>세포 적합성</h3><p>각 층까지 만든 칩 위에서 중뇌 세포를 키워 생존율, 신경돌기 길이, TH 양성 비율을 일반 배양 접시와 비교합니다. 전위를 건 상태와 안 건 상태를 모두 봅니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>Dornhof · Weltin 등, 투명 장기 칩 산소 · 포도당 · 젖산 센서, 1주 이상 안정, Lab Chip (2022). <a href="https://pubs.rsc.org/en/content/articlehtml/2022/lc/d1lc00689d" target="_blank" rel="noopener">RSC</a></li>
+    <li>스크린 프린팅 Pt 어레이 오스뮴 하이드로겔 + PEDOT 포도당 센서. <a href="https://pubs.rsc.org/en/content/articlepdf/2019/ra/c9ra00694j" target="_blank" rel="noopener">RSC Adv. 2019</a> · 배지 측정 드리프트 보정 <a href="https://www.preprints.org/frontend/manuscript/f4a3a9986e4fbd2934951d70b5832d86/download_pub" target="_blank" rel="noopener">Preprints</a></li>
+    <li>Pt MEA 글루탐산 센서 BSA/GA + mPD 배제층. <a href="https://par.nsf.gov/servlets/purl/10298050" target="_blank" rel="noopener">NSF PAR</a> · <a href="https://escholarship.org/content/qt10c852f1/qt10c852f1.pdf?t=rvuk17" target="_blank" rel="noopener">UCLA</a> · Pt 거칠게 만들기로 H₂O₂ 감도 향상 <a href="https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2025.1679591/pdf" target="_blank" rel="noopener">Front. Neurosci. 2025</a></li>
+    <li>PEDOT/CNT 유연 MEA 도파민 4주 안정, Adv. Sci. (2024). <a href="https://doaj.org/article/3cc30403d92e4ab28983af764e79db9f" target="_blank" rel="noopener">DOAJ</a> · Pt 위 CNT-CQD-PPy <a href="https://biomed.reviewer.ly/app/publication/e5a347a2-47dd-4c67-80da-d6f05e8b6c7d" target="_blank" rel="noopener">Sensors 2024</a></li>
+    <li>1차 중뇌 세포 다이아몬드 MEA 양자 방출 측정, Front. Neurosci. (2019). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6465646" target="_blank" rel="noopener">PMC6465646</a> · iPSC DA 뉴런 도파민 센서 <a href="https://ekoizpen-zientifikoa.ehu.eus/documentos/69efa8ef4ae13b1f6ffef4a9?lang=en" target="_blank" rel="noopener">EHU</a></li>
+    <li>Oni · Schuhmann 등, Pt 미세전극 Mn 포르피린 + Nafion NO 센서 (2003). <a href="https://aaup.edu/ar/node/34988" target="_blank" rel="noopener">AAUP</a> · 세포 NO 측정 학위논문 <a href="https://hss-opus.ub.ruhr-uni-bochum.de/opus4/frontdoor/index/index/year/2018/docId/740" target="_blank" rel="noopener">RUB</a></li>
+    <li>박막 신경전극 박리 · 접착층. <a href="https://www2.avs.org/symposium2015/Papers/Paper_TF+AS+BI-WeA9.html" target="_blank" rel="noopener">AVS 2015</a> · <a href="https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/11376005" target="_blank" rel="noopener">USPTO</a> · <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5344629/" target="_blank" rel="noopener">PMC5344629</a></li>
+    <li>Pt 블랙 기계적 불안정, 배지에 따른 Si₃N₄ 부식. <a href="https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2018.00882/text" target="_blank" rel="noopener">Front. Neurosci. 2018</a></li>
+    <li>선택투과막 비교와 센티널 · H₂O₂ 세포 측정 선례는 이전 페이지 출처 참고. <a href="https://claude.ai/artifact/6Vtqxwo6VKwCi442K7rd6W" target="_blank" rel="noopener">중뇌 센서 최적화</a></li>
+  </ol>
+  <p class="note">층 구성 순서, 각 층의 후보 선택, 검증 계획은 문헌을 바탕으로 한 제 제안입니다. 표의 일부 사례는 초록 · 요약만 확인했으므로 층 두께와 공정 조건은 원문에서 확인하세요.</p>
+</section>
+
+</div>
