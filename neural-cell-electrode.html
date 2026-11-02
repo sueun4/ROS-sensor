@@ -1,0 +1,326 @@
+<title>뇌세포 ROS 전극 설계</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.verdict-box{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;background:var(--non-soft);border-radius:8px;padding:20px}
+.verdict-box .big{font-family:var(--mono);font-size:1.1rem;font-weight:500;color:var(--non);white-space:nowrap}
+@media (max-width:520px){.verdict-box{grid-template-columns:1fr}}
+.configs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.cfg{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cfg svg{width:100%;height:auto;display:block}
+.cfg .lbl{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.cfg p{font-size:.86rem;color:var(--muted)}
+.cfg .spec{font-family:var(--mono);font-size:.76rem;color:var(--pb)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;margin-right:4px}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:grid;grid-template-columns:80px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .ph{font-family:var(--mono);font-size:.78rem;color:var(--pb)}
+.step p{font-size:.9rem}
+@media (max-width:520px){.step{grid-template-columns:1fr;gap:4px}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Neural cell electrode design · 2026-11 기준</span>
+  <h1>뇌세포 ROS 전극 설계</h1>
+  <p class="lede">뇌 세포 환경(미세아교세포 · 성상세포 · 신경세포)에서 H₂O₂를 잴 때, 세포가 전극을 덮어도 신호를 잃지 않는 전극 크기와 형태, 그리고 스크린 프린팅 3전극을 쓸지에 대한 판단을 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/QLUYEZ6EMAkLiwFqMF7KcA" target="_blank" rel="noopener">← 전체 지도</a> · <a href="https://claude.ai/artifact/8WVQgBGggH4C5Qbe9CTMhF" target="_blank" rel="noopener">뇌 ROS 지도</a> · <a href="https://claude.ai/artifact/1dt84DGVPLK3dqzopHbiPA" target="_blank" rel="noopener">세포 · 오가노이드 설계</a></p>
+</header>
+
+<section>
+  <div class="verdict-box">
+    <span class="big">결론: 타당함 (1단계용)</span>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <p><b>스크린 프린팅 3전극(작업전극 3–4 mm, PB 개질)은 첫 단계로 타당합니다.</b> PET 위 프린팅 PB 전극에서 세포를 직접 키우며 H₂O₂를 잰 선례(−100 mV, LOD 1.9 µM)가 있고, 싸고 일회용이라 조건을 많이 돌려 보기 좋습니다.</p>
+      <p>다만 세 가지를 보완해야 합니다. 프린팅 Ag/AgCl 기준전극의 은 이온이 신경세포에 독성일 수 있고, 배양 배지 자체가 H₂O₂를 지우며(B27의 카탈레이스 · SOD, 피루브산), 프린팅 해상도(약 100–200 µm)로는 세포 크기 수준의 미세 패턴을 만들 수 없습니다. 세포 위치와 무관하게 정량하려면 2단계에서 포토리소그래피 미세밴드 전극으로 넘어가는 것을 권합니다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">01 · 어떤 뇌세포부터</span>
+  <h2>신호가 큰 세포부터 시작한다</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>세포</th><th>예시</th><th>ROS 신호</th><th>자극</th><th>주의</th><th>우선순위</th></tr></thead>
+    <tbody>
+      <tr><td>미세아교세포</td><td>BV-2, 1차 미세아교세포</td><td>강함. NOX2가 O₂•⁻를 만들고 H₂O₂로 바뀜</td><td>PMA(수 분 내 폭발), LPS(수 시간), Aβ 올리고머</td><td>기질이 딱딱하면 세포외 ROS가 늘어남(SECM 2024). 전극 표면 강성도 변수</td><td><span class="pill go">1순위</span></td></tr>
+      <tr><td>신경세포</td><td>SH-SY5Y(분화), PC12, 1차 피질 · 해마 뉴런</td><td>약함. 주로 미토콘드리아 유래</td><td>로테논, MPP⁺, 글루탐산(1차 뉴런), 메나디온</td><td>6-OHDA는 세포 없이도 배지에서 자동산화해 H₂O₂를 만듦. 세포 없는 대조군 필수</td><td><span class="pill mid">2순위</span></td></tr>
+      <tr><td>성상세포</td><td>1차 성상세포, C8-D1A</td><td>약함 · H₂O₂를 오히려 제거(카탈레이스 · GPx 풍부)</td><td>산화 스트레스 부하 후 제거 속도 측정</td><td>넓게 퍼져서 전극 피복률이 높음</td><td><span class="pill mid">2순위</span></td></tr>
+      <tr><td>공배양</td><td>뉴런(Transwell 인서트) + 미세아교세포(전극 위)</td><td>상호작용 신호</td><td>LPS로 미세아교 활성 → 뉴런 손상</td><td>세포 비율 · 배지 조건 맞추기 어려움</td><td><span class="pill warn">3순위</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="card">
+    <h3>배지가 신호를 지운다</h3>
+    <p class="muted">신경세포 배양에 흔히 쓰는 <b>B27 보충제에는 카탈레이스 · SOD · 글루타티온 같은 항산화 성분</b>이 들어 있고, DMEM의 <b>피루브산</b>도 H₂O₂와 직접 반응합니다. 혈청에도 H₂O₂ 분해 효소가 있습니다. 배양은 평소대로 하되, 측정 구간에는 항산화제가 빠진 B27(minus AO), 피루브산 · 페놀레드 없는 배지, 또는 HBSS · Krebs-Ringer 완충액으로 바꾸는 것이 좋습니다. 바꾼 뒤 기준선이 안정될 때까지 기다린 다음 자극을 줍니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 세포가 전극을 덮는 문제</span>
+  <h2>덮여도 신호가 사라지지는 않는다</h2>
+  <p class="muted">세포 아래에는 기판과 수십~100 nm 정도의 얇은 틈이 있습니다. 세포 바닥면에서 나온 H₂O₂는 이 틈으로 바로 들어가므로 오히려 잘 잡힙니다. 덮였을 때 생기는 실제 문제는 두 가지입니다. 위쪽 배지에 넣은 표준 H₂O₂가 전극에 닿기 어려워져 <b>보정 곡선이 달라지는 것</b>, 그리고 세포 수가 늘수록 <b>신호 크기가 피복률에 따라 변하는 것</b>입니다.</p>
+  <div class="tbox" tabindex="0">
+  <table class="t" style="min-width:600px">
+    <thead><tr><th>세포</th><th>세포 1개 바닥 면적 (가정)</th><th>파종 밀도 (가정)</th><th>예상 피복률</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>BV-2</td><td class="num">≈ 180 µm²</td><td class="num">1×10⁵ /cm²</td><td class="num">≈ 18 %</td><td>전극 대부분 노출. 문제 적음</td></tr>
+      <tr><td>SH-SY5Y</td><td class="num">≈ 400 µm²</td><td class="num">5×10⁴ /cm²</td><td class="num">≈ 20 %</td><td>분화 후 신경돌기가 늘면 증가</td></tr>
+      <tr><td>성상세포</td><td class="num">≈ 3,000 µm²</td><td class="num">2×10⁴ /cm²</td><td class="num">≈ 60 %</td><td>며칠 지나면 거의 덮임. 밀도를 낮추거나 패턴 필요</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">면적과 밀도는 대표값을 가정한 계산입니다. 실제 피복률은 측정 직후 같은 전극을 염색해 이미지로 확인하세요.</p>
+  <div class="card">
+    <h3>목표: 측정 시점 피복률 20–60 %</h3>
+    <ul class="muted">
+      <li>피복률이 그 안에 들도록 파종 밀도와 배양 일수를 조절하고, 측정은 컨플루언트(100 %)에 이르기 전에 합니다.</li>
+      <li>보정은 세포 없는 전극, 세포를 파종한 뒤의 같은 전극 두 번 합니다. 실험 끝에 표준 H₂O₂를 첨가해 회수율을 보는 방식도 됩니다.</li>
+      <li>신호는 측정 후 계수한 세포 수(또는 단백질 양)로 나눠 비교합니다.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 크기와 형태</span>
+  <h2>전극 형태 네 가지</h2>
+  <div class="configs">
+    <div class="cfg">
+      <span class="lbl">A · 원판형 대형 전극</span>
+      <h3>스크린 프린팅 원판 WE</h3>
+      <svg viewBox="0 0 220 120" role="img" aria-label="원판형 작업전극 위에 세포가 흩어져 있는 모습">
+        <circle cx="110" cy="60" r="48" fill="var(--pb-soft)" stroke="var(--pb)" stroke-width="2"/>
+        <g fill="var(--non)" opacity=".85"><circle cx="90" cy="45" r="5"/><circle cx="120" cy="40" r="5"/><circle cx="135" cy="65" r="5"/><circle cx="100" cy="75" r="5"/><circle cx="80" cy="62" r="5"/><circle cx="115" cy="85" r="5"/><circle cx="140" cy="45" r="4"/><circle cx="95" cy="58" r="4"/></g>
+      </svg>
+      <span class="spec">WE Ø 3–4 mm · 약 3,500–12,600 세포</span>
+      <p>세포 집단의 총 방출량을 봅니다. 제작이 가장 쉽고 상용 전극도 많습니다. 피복률에 따라 보정이 달라집니다.</p>
+      <span><span class="pill go">1단계 추천</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">B · 미세밴드 · 깍지형(IDE)</span>
+      <h3>전극 사이 틈에 세포를 둔다</h3>
+      <svg viewBox="0 0 220 120" role="img" aria-label="가는 밴드 전극 사이의 틈에 세포가 자리 잡은 모습">
+        <g fill="var(--pb)"><rect x="20" y="20" width="8" height="80"/><rect x="58" y="20" width="8" height="80"/><rect x="96" y="20" width="8" height="80"/><rect x="134" y="20" width="8" height="80"/><rect x="172" y="20" width="8" height="80"/></g>
+        <g fill="var(--non)"><circle cx="43" cy="40" r="6"/><circle cx="43" cy="78" r="6"/><circle cx="81" cy="58" r="6"/><circle cx="119" cy="35" r="6"/><circle cx="119" cy="80" r="6"/><circle cx="157" cy="55" r="6"/></g>
+      </svg>
+      <span class="spec">밴드 10–20 µm · 틈 30–50 µm</span>
+      <p>세포 접착 코팅(PDL)을 틈의 유리에만, 항부착 코팅을 전극에만 올려 세포가 전극을 덮지 않게 합니다. 세포에서 전극까지 25 µm 이내라 확산 약 0.2초입니다. 포토리소그래피(유리 위 Pt/Au)가 필요합니다.</p>
+      <span><span class="pill mid">2단계 추천</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">C · 고리형</span>
+      <h3>세포 섬을 감싸는 링 전극</h3>
+      <svg viewBox="0 0 220 120" role="img" aria-label="가운데 세포 섬을 고리 전극이 둘러싼 모습">
+        <circle cx="110" cy="60" r="46" fill="none" stroke="var(--pb)" stroke-width="8"/>
+        <circle cx="110" cy="60" r="34" fill="var(--non-soft)"/>
+        <g fill="var(--non)"><circle cx="100" cy="50" r="5"/><circle cx="118" cy="55" r="5"/><circle cx="105" cy="70" r="5"/><circle cx="122" cy="72" r="5"/></g>
+      </svg>
+      <span class="spec">세포 섬 Ø 0.5–1 mm · 링 폭 50–100 µm</span>
+      <p>세포는 가운데에만, 전극은 바깥 고리에만 둡니다. 피복 문제가 없지만 섬 가운데 세포의 신호는 수백 µm를 확산해야 해서 수십 초 늦어집니다.</p>
+      <span><span class="pill mid">대안</span></span>
+    </div>
+    <div class="cfg">
+      <span class="lbl">D · 분리형</span>
+      <h3>Transwell 인서트 + 바닥 SPE</h3>
+      <svg viewBox="0 0 220 120" role="img" aria-label="인서트 막 위 세포와 그 아래 프린팅 전극">
+        <rect x="20" y="20" width="180" height="90" rx="3" fill="var(--pb-soft)" stroke="var(--line)"/>
+        <rect x="50" y="48" width="120" height="4" fill="var(--muted)"/>
+        <g fill="var(--non)"><circle cx="70" cy="43" r="5"/><circle cx="95" cy="43" r="5"/><circle cx="120" cy="43" r="5"/><circle cx="145" cy="43" r="5"/></g>
+        <rect x="80" y="100" width="60" height="8" fill="var(--pb)"/>
+        <text x="146" y="84" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">≈ 1 mm</text>
+      </svg>
+      <span class="spec">막-전극 거리 ≈ 1 mm · 확산 ≈ 6분</span>
+      <p>세포가 전극에 전혀 닿지 않고 전극을 교체할 수 있습니다. 뉴런-미세아교 공배양에 맞지만 신호가 늦고 희석됩니다.</p>
+      <span><span class="pill warn">장기 · 공배양용</span></span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 스크린 프린팅 3전극 점검</span>
+  <h2>SPE를 세포 배양에 쓸 때 확인할 것</h2>
+  <div class="checks">
+    <div class="chk"><h3>기준전극의 은 독성</h3><p>프린팅 Ag/AgCl에서 녹아 나온 은 이온은 신경세포에 해로울 수 있습니다. 기준전극에 Nafion을 얇게 덮거나, 세포가 닿지 않는 위치에 두세요. 전위를 걸지 않은 SPE에서 생존율(LDH, Live/Dead)을 먼저 확인합니다.</p></div>
+    <div class="chk"><h3>세포는 작업전극 위에만</h3><p>PDMS 웰이나 클로닝 링으로 작업전극만 둘러싸 세포를 파종하고, 부착(4–6시간) 후 링을 빼고 배지 200–300 µL로 세 전극을 모두 덮습니다. 50 µL 방울은 인큐베이터에서 증발합니다.</p></div>
+    <div class="chk"><h3>세포 부착 코팅</h3><p>탄소 잉크 위에서는 신경세포가 잘 붙지 않습니다. PDL(미세아교 · 세포주), PDL + 라미닌(1차 뉴런)을 올리고, 코팅 후 감도를 다시 보정합니다.</p></div>
+    <div class="chk"><h3>멸균과 용출물</h3><p>PET · PB는 고압멸균을 견디지 못합니다. 70 % 에탄올과 UV로 멸균하고, 잉크 바인더 용출물을 빼기 위해 배지에 하루 담가 둔 뒤 사용합니다.</p></div>
+    <div class="chk"><h3>전위와 PB 안정성</h3><p>PB는 −50 ~ −100 mV(vs 프린팅 Ag/AgCl)에서 읽어 세포 영향이 작습니다. pH 7.4 배지에서 서서히 녹으므로 측정 구간을 수 시간 단위로 잡고, 장기 측정이 필요하면 Pt 나노입자나 나노자임으로 바꿉니다.</p></div>
+    <div class="chk"><h3>기준 전위 드리프트</h3><p>배지 Cl⁻ 농도는 약 100–120 mM로 일정해 의사기준전극도 비교적 안정합니다. 처음 한 번은 3 M KCl 상용 Ag/AgCl 전극과 비교해 차이를 확인하세요.</p></div>
+    <div class="chk"><h3>관찰 한계</h3><p>세라믹 · PET 기판은 불투명해 도립 현미경으로 세포를 보기 어렵습니다. 상부 형광 관찰을 하거나, 관찰이 중요하면 ITO 유리 전극으로 바꿉니다.</p></div>
+    <div class="chk"><h3>해상도 한계</h3><p>스크린 프린팅 선폭은 약 100–200 µm입니다. 세포 크기(10–50 µm) 수준의 밴드 · 틈 구조는 포토리소그래피, 잉크젯, 레이저(LIG) 가공으로 만들어야 합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">05 · 단계별 계획</span>
+  <h2>권장 진행 순서</h2>
+  <div class="steps">
+    <div class="step"><span class="ph">1단계</span><p><b>SPE + BV-2 + PMA.</b> 작업전극 Ø 3–4 mm PB-SPE, PDL 코팅, BV-2 1×10⁵ /cm², 측정 구간은 HBSS. PMA 자극 후 크로노암페로메트리로 수 분 안에 전류가 올라가는지 보고, 카탈레이스를 넣어 신호가 사라지는지 확인합니다.</p></div>
+    <div class="step"><span class="ph">2단계</span><p><b>LPS · Aβ 같은 생리적 자극과 시간 축 확장.</b> 수 시간 연속 또는 매시간 간헐 측정. 같은 전극을 측정 후 염색해 세포 수 · 피복률로 신호를 정규화합니다.</p></div>
+    <div class="step"><span class="ph">3단계</span><p><b>신경세포 · 성상세포로 확장.</b> 신호가 작으므로 Pt 나노입자 · 나노자임으로 감도를 높이고, 6-OHDA 같은 자동산화 물질은 세포 없는 대조군을 함께 측정합니다.</p></div>
+    <div class="step"><span class="ph">4단계</span><p><b>미세밴드 · IDE 전극(포토리소그래피)으로 전환.</b> 세포를 틈에만 패턴화해 피복과 무관한 정량을 하고, 투명 유리 기판으로 이미지와 전류를 함께 얻습니다. 뉴런-미세아교 공배양은 Transwell + 바닥 전극으로 시도합니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>PET 위 PB 프린팅 전극 어레이에서 HeLa 직접 배양 · H₂O₂ 측정 (−100 mV, LOD 1.9 µM). <a href="https://research.unite.it/handle/11575/111050" target="_blank" rel="noopener">Unite</a></li>
+    <li>Pt NP-rGO–CNT 스크린 프린팅 탄소 전극, LNCaP 세포 실시간 H₂O₂. <a href="https://www.nature.com/articles/s41598-019-47392-1.pdf" target="_blank" rel="noopener">Sci. Rep. 2019</a></li>
+    <li>평면 전극 위 세포 배치로 확산 거리 단축 (H₂S, 2023). <a href="https://pubs.rsc.org/en/content/articlehtml/2023/sd/d2sd00179a" target="_blank" rel="noopener">RSC Sens. Diagn.</a></li>
+    <li>N2a 신경모세포종에서 스크린 프린팅 3전극 사용 및 세포독성 평가. <a href="https://uwe-repository.worktribe.com/index.php/OutputFile/915769" target="_blank" rel="noopener">UWE</a></li>
+    <li>SECM으로 미세아교세포 ROS · 호흡 측정, 기질 강성 영향 (2024). <a href="https://pubs.rsc.org/en/content/articlelanding/2023/sc/d3sc03504b" target="_blank" rel="noopener">Chem. Sci.</a></li>
+    <li>LPS 자극 대식세포 세포내 H₂O₂ 탄소 나노전극. <a href="https://bohrium.dp.tech/paper/arxiv/32416460" target="_blank" rel="noopener">초록</a> · THP-1 대식세포 r-GO/Au 센서 <a href="https://explore.cnr.it/resource/item/320457" target="_blank" rel="noopener">CNR</a></li>
+    <li>BV-2 LPS 활성화 시 세포질 · 미토콘드리아 H₂O₂ (HyPer). <a href="https://oak.kribb.re.kr/handle/201005/17243" target="_blank" rel="noopener">KRIBB</a></li>
+  </ol>
+  <p class="note">피복률 · 세포 수 · 확산 시간은 대표값을 가정한 계산이고, 크기 · 형태 추천과 단계별 계획은 문헌을 바탕으로 한 제 제안입니다. B27 구성, 피루브산의 H₂O₂ 소거, 6-OHDA 자동산화, 세포-기판 틈 크기는 일반적으로 알려진 내용을 배경지식으로 적었으니 사용하는 제품 설명서로 확인하세요.</p>
+</section>
+
+</div>
