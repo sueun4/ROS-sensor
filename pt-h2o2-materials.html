@@ -1,0 +1,278 @@
+<title>Pt 기반 H₂O₂ 센서 소재</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap;margin:1px 0}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.verdict-box{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;background:var(--non-soft);border-radius:8px;padding:20px}
+.verdict-box .big{font-family:var(--mono);font-size:1rem;font-weight:500;color:var(--non)}
+@media (max-width:560px){.verdict-box{grid-template-columns:1fr}}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:0;max-width:520px;font-family:var(--mono);font-size:.8rem}
+.stack div{padding:10px 14px;border:1px solid var(--line);border-top:none}
+.stack div:first-child{border-top:1px solid var(--line);border-radius:6px 6px 0 0}
+.stack div:last-child{border-radius:0 0 6px 6px}
+.stack span{display:block;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Pt-based H₂O₂ materials · 2026-11 기준</span>
+  <h1>Pt 기반 H₂O₂ 센서 소재</h1>
+  <p class="lede">백금(Pt) 전극으로 H₂O₂를 잴 때 감도와 안정성을 함께 높이는 소재를 비교했습니다. 기준은 앞서 정한 실험 조건입니다. 37 °C 배양 배지에서 중뇌 세포 위에 놓고, 수 시간에서 며칠 동안 측정하는 스크린 프린팅 전극(SPE)입니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/QLUYEZ6EMAkLiwFqMF7KcA" target="_blank" rel="noopener">← 전체 지도</a> · <a href="https://claude.ai/artifact/AxT5DPL3tSPdWYeEKjUmPG" target="_blank" rel="noopener">뇌세포 전극 설계</a> · <a href="https://claude.ai/artifact/PRJ2dDw9HunvtYLGYzf38e" target="_blank" rel="noopener">H₂O₂ 신호와 중뇌 모델</a></p>
+</header>
+
+<section>
+  <div class="verdict-box">
+    <span class="big">추천 조합</span>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <p><b>탄소 지지체(rGO 또는 CNT) 위에 전착한 Pt 합금 나노입자(Pt-Au 또는 Pt-Pd) + 얇은 선택투과막(폴리-o-페닐렌디아민 또는 과산화 폴리피롤).</b></p>
+      <p class="muted">Pt-Au/rGO는 0 V에서 작동하고 Au 첨가로 Pt의 활성과 안정성이 함께 좋아졌으며, PC12 세포의 H₂O₂ 방출 측정에 쓰였습니다. Pt-Pd는 Pt-Ir보다 H₂O₂ 감지 성능이 좋았습니다. 단백질 오염이 걱정되면 나노다공성 Pt-Au 합금이 대안입니다. 연속 측정 수명이 우선이면 활성화한 Pt 블랙도 좋은 선택입니다(+0.3 V, 30일 재사용 보고).</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">01 · Pt의 약점</span>
+  <h2>순수 Pt 전극이 세포 측정에서 약한 이유</h2>
+  <div class="checks">
+    <div class="chk"><h3>높은 산화 전위와 간섭</h3><p>평판 Pt는 H₂O₂를 약 +0.5–0.7 V(vs Ag/AgCl)에서 산화합니다. 이 전위에서는 아스코르브산, 요산, 도파민도 함께 산화되어 중뇌 세포 배지에서는 간섭이 큽니다.</p></div>
+    <div class="chk"><h3>표면 산화물 · 염화 이온 흡착</h3><p>Pt 표면에 산화물이 생기거나 배지의 Cl⁻(약 100–120 mM)이 흡착하면 활성 자리가 줄어 감도가 시간에 따라 떨어집니다. 나노입자 전극은 평판 Pt보다 이 비활성화가 덜하다고 보고되었습니다.</p></div>
+    <div class="chk"><h3>단백질 오염</h3><p>혈청 알부민 같은 단백질이 표면을 덮어 감도가 떨어집니다. Nafion 막만으로는 이식 직후의 급성 오염을 막지 못했다는 보고가 있습니다.</p></div>
+    <div class="chk"><h3>환원 모드의 산소 배경</h3><p>Pt를 0 V 근처 환원 모드로 쓰면 간섭은 줄지만 녹아 있는 O₂도 함께 환원되어 배경 전류가 생깁니다. 인큐베이터 문 개폐 같은 O₂ 변화가 신호로 섞이므로 세포 없는 기준 전극으로 차감해야 합니다(PB는 이 문제가 작음).</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 소재 비교</span>
+  <h2>Pt 기반 촉매 소재</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>소재</th><th>작동 조건</th><th>보고된 성능</th><th>안정성 · 오염</th><th>세포 측정</th><th>평가</th></tr></thead>
+    <tbody>
+      <tr><td>Pt-Au 나노입자 / rGO</td><td>0 V 환원</td><td>낮은 전위에서 높은 활성</td><td>Au 첨가로 Pt 안정성 향상</td><td>PC12 세포 방출 측정</td><td><span class="pill go">1순위</span></td></tr>
+      <tr><td>Pt-Pd 나노입자 / CNT</td><td>암페로메트리</td><td>LOD 1.2 µM, 선형 2.5–125 µM</td><td>안정성 양호, 요산 · 아스코르브산 · 아세트아미노펜 · 포도당 간섭 제거</td><td>—</td><td><span class="pill go">1순위 후보</span></td></tr>
+      <tr><td>Pt-Ir 나노입자 / CNT</td><td>암페로메트리</td><td>Pt-Pd보다 낮은 H₂O₂ 감지 성능</td><td>Pt-Ir 와이어는 뇌 이식 전극의 표준 기판</td><td>뇌 in vivo (와이어 형태)</td><td><span class="pill mid">기판용</span></td></tr>
+      <tr><td>나노다공성 Pt-Au 합금</td><td>pH 7.4 완충액</td><td>비효소 H₂O₂ 검출</td><td>혈청 알부민 존재에서도 신호 유지. 작은 기공이 단백질을 걸러내는 효과</td><td>—</td><td><span class="pill go">오염 대책</span></td></tr>
+      <tr><td>Pt 블랙 (전착 후 활성화)</td><td>+0.3 V 산화</td><td>세척 · 활성화로 감도 크게 상승</td><td>미세유체에서 30일 이상 재사용, 흐름으로 재생</td><td>—</td><td><span class="pill go">장기 측정</span></td></tr>
+      <tr><td>Pt 나노입자 / MWCNT</td><td>0 mV</td><td class="num">205.8 µA·mM⁻¹·cm⁻²</td><td>—</td><td>—</td><td><span class="pill mid">기본형</span></td></tr>
+      <tr><td>Pt 나노입자 / 고분자 지지체</td><td>중성 pH, 매개체 · 효소 없음</td><td>서브 nM LOD, 9.15 µA/mM</td><td>평판 Pt보다 표면 산화물 비활성화가 적음</td><td>—</td><td><span class="pill mid">고감도</span></td></tr>
+      <tr><td>Pt 장식 나노다공성 금</td><td>H₂O₂ 환원</td><td>LOD 0.3 nM</td><td>—</td><td>—</td><td><span class="pill mid">고감도</span></td></tr>
+      <tr><td>Pt-CuO / 탄소나노섬유 SPE</td><td>스크린 프린팅 전극</td><td>LOD 17 nM, 응답 1.0 s</td><td>—</td><td>세포 방출 H₂O₂</td><td><span class="pill go">SPE 적합</span></td></tr>
+      <tr><td>Pt NP / Cu₂₋ₓSe-GO SPCE</td><td>스크린 프린팅 전극</td><td>세포 방출 실시간 측정</td><td>—</td><td>상처 염증 모델 세포</td><td><span class="pill mid">참고</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">감도는 전극 면적 정규화, 전위, 세척 여부에 따라 자릿수가 달라져서 논문 사이에 직접 비교하기 어렵습니다. 단위 환산: 1 nA·µM⁻¹·mm⁻² = 100 µA·mM⁻¹·cm⁻². 빈칸(—)은 이번 조사에서 확인하지 못한 항목입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 보호막</span>
+  <h2>선택투과막과 오염 방지층</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>막</th><th>장점</th><th>단점</th><th>권장</th></tr></thead>
+    <tbody>
+      <tr><td>폴리-m-페닐렌디아민 (PmPD)</td><td>아스코르브산이 낮을 때 H₂O₂ 선택성이 가장 좋음</td><td>선택성이 하루 만에 빠르게 떨어짐. 이식 후 도파민 선택성이 약했음</td><td><span class="pill warn">단기 측정만</span></td></tr>
+      <tr><td>폴리-o-페닐렌디아민 (PoPD)</td><td>아스코르브산 200 µM 이상에서 더 우수</td><td>막이 두꺼우면 H₂O₂ 감도도 함께 줄어듦</td><td><span class="pill go">중뇌 배지에 적합</span></td></tr>
+      <tr><td>과산화 폴리피롤</td><td>아스코르브산 대비 H₂O₂ 선택성 130배 이상, 2주 안정성</td><td>전착 조건 최적화 필요</td><td><span class="pill go">장기 측정</span></td></tr>
+      <tr><td>Nafion</td><td>음이온(아스코르브산, 요산, 아질산) 차단</td><td>양이온인 도파민은 오히려 농축될 수 있음. 급성 단백질 오염은 막지 못함</td><td><span class="pill mid">보조층</span></td></tr>
+      <tr><td>나노다공 구조 자체</td><td>기공이 단백질을 걸러냄</td><td>기공이 막히면 재생이 어려움</td><td><span class="pill mid">촉매와 일체</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h3>추천 적층 구조 (위에서 아래로)</h3>
+    <div class="stack" role="list">
+      <div role="listitem">세포 배양층 (PDL 코팅)<span>세포 부착. 코팅 후 다시 보정</span></div>
+      <div role="listitem" style="background:var(--min-soft)">PoPD 또는 과산화 폴리피롤 (얇게)<span>아스코르브산 · 도파민 차단, 단백질 1차 차단</span></div>
+      <div role="listitem" style="background:var(--pb-soft)">Pt-Au 또는 Pt-Pd 나노입자 (전착)<span>H₂O₂ 촉매. 0 V 근처 환원 또는 +0.3 V 산화</span></div>
+      <div role="listitem" style="background:var(--bg)">rGO 또는 CNT 지지체<span>표면적 확대, 나노입자 고정</span></div>
+      <div role="listitem" style="background:var(--surface)">SPE 탄소 작업전극 (Ø 3–4 mm)<span>상용 SPE에 그대로 올림</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 작동 방식 선택</span>
+  <h2>산화 모드와 환원 모드</h2>
+  <div class="checks">
+    <div class="chk"><h3>환원 모드 (약 0 ~ −0.1 V)</h3><p>Pt-Au/rGO, Pt NP/MWCNT처럼 나노 Pt는 0 V 근처에서 H₂O₂를 환원할 수 있습니다. 아스코르브산 · 도파민 산화 간섭이 거의 없지만, 녹아 있는 O₂ 환원과 도파민 퀴논 환원이 배경으로 섞입니다. 세포 없는 기준 전극과의 차동 측정이 필요합니다.</p></div>
+    <div class="chk"><h3>낮은 전위 산화 모드 (약 +0.3 V)</h3><p>활성화한 Pt 블랙은 +0.3 V에서 높은 감도와 30일 재사용이 보고되었습니다. O₂ 영향은 적지만 도파민 · 아스코르브산이 산화될 수 있어 PoPD 같은 선택투과막이 필수입니다.</p></div>
+    <div class="chk"><h3>PB와 비교</h3><p>PB는 −50 mV에서 O₂ 간섭 없이 선택적이지만 pH 7.4 배지에서 서서히 녹습니다. Pt 계열은 배지에서 녹지 않아 수일 측정에 유리한 대신, 막과 차동 측정으로 선택성을 보완해야 합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">05 · 안정성 유지</span>
+  <h2>실험에서 수명을 늘리는 방법</h2>
+  <div class="checks">
+    <div class="chk"><h3>전기화학적 세척 · 재활성화</h3><p>측정 사이에 PBS에서 CV를 몇 회 돌려 흡착물과 산화물을 제거합니다. Pt 블랙은 세척만으로 감도가 크게 올라갔다는 보고가 있습니다. 세포가 붙어 있을 때는 짧은 전위 펄스만 쓰고, 생존율을 함께 확인하세요.</p></div>
+    <div class="chk"><h3>간헐 측정</h3><p>계속 전위를 거는 대신 일정 간격으로 짧게 측정하면 표면 산화와 오염 축적이 줄어듭니다.</p></div>
+    <div class="chk"><h3>매 측정 보정</h3><p>실험 끝에 표준 H₂O₂를 첨가해 그날의 감도를 확인합니다. 감도가 처음의 몇 % 아래로 떨어지면 전극을 교체하는 기준을 미리 정해 두세요.</p></div>
+    <div class="chk"><h3>예비 비교 실험</h3><p>같은 SPE에 PB, Pt NP, Pt-Au/rGO, Pt-Pd/CNT를 각각 올려 37 °C 배지에서 24–72시간 감도 변화와 아스코르브산 · 도파민 간섭을 비교하면 실제 조건에서의 최적 소재를 고를 수 있습니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>Pt 나노입자 기반 비효소 H₂O₂ 센서, 중성 pH 서브 nM 검출. <a href="https://repository.ias.ac.in/139965" target="_blank" rel="noopener">IAS</a></li>
+    <li>나노다공성 Pt(Au) 합금, pH 7.4 · 혈청 알부민 존재 측정. <a href="https://www.osti.gov/pages/servlets/purl/1958428" target="_blank" rel="noopener">OSTI</a></li>
+    <li>Pt-Au/rGO, 0 V 환원, PC12 세포 H₂O₂ 측정. <a href="https://pubs.rsc.org/en/content/getauthorversionpdf/c4an02056a" target="_blank" rel="noopener">RSC</a></li>
+    <li>Pt 기반 이원금속 H₂O₂ 전극 리뷰, Biosensors (2022). <a href="https://www.mdpi.com/2079-6374/12/9/672" target="_blank" rel="noopener">MDPI</a></li>
+    <li>Pt 장식 나노다공성 금, LOD 0.3 nM. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4367329" target="_blank" rel="noopener">PMC4367329</a></li>
+    <li>Pt 블랙 감도 향상(특허). <a href="https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/11246518" target="_blank" rel="noopener">USPTO</a> · 미세유체 Pt 블랙 30일 재사용 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5453378" target="_blank" rel="noopener">PMC5453378</a></li>
+    <li>Pt NP/MWCNT 205.8 µA·mM⁻¹·cm⁻² 및 Pt/Ni 폼. <a href="https://pubs.rsc.org/en/Content/ArticleLanding/2014/AY/C3AY41566J" target="_blank" rel="noopener">RSC 2014</a> · <a href="https://www.preprints.org/manuscript/202008.0456/v1/download" target="_blank" rel="noopener">Preprints</a></li>
+    <li>Pt-Pd · Pt-Ir / CNT 비교, Biosens. Bioelectron. (2012). <a href="https://www.ncbi.nlm.nih.gov/pubmed/22236778" target="_blank" rel="noopener">PubMed 22236778</a></li>
+    <li>Pt-CuO / 탄소나노섬유 SPE, 세포 방출 H₂O₂. <a href="https://pubs.rsc.org/en/Content/ArticleLanding/2022/NJ/D2NJ02495K" target="_blank" rel="noopener">RSC</a> · Cu₂₋ₓSe/GO@Pt SPCE <a href="https://www.frontiersin.org/articles/10.3389/fimmu.2024.1392259/full" target="_blank" rel="noopener">Frontiers 2024</a></li>
+    <li>폴리페닐렌디아민 · 과산화 폴리피롤 선택투과막 비교. <a href="https://mural.maynoothuniversity.ie/id/eprint/1306/1/sensors-07-00420.pdf" target="_blank" rel="noopener">Sensors 2007</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3800356" target="_blank" rel="noopener">PMC3800356</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5686037" target="_blank" rel="noopener">PMC5686037</a></li>
+  </ol>
+  <p class="note">추천 조합과 적층 구조는 문헌을 바탕으로 한 제 제안입니다. Pt의 표준 산화 전위, Cl⁻ 흡착, 환원 모드의 O₂ 배경, Nafion의 도파민 농축은 배경지식으로 적었으니 예비 실험으로 확인하세요. 검색 결과 요약을 바탕으로 했고 원문 전체를 읽지는 않았습니다.</p>
+</section>
+
+</div>
