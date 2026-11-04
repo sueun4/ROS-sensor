@@ -1,0 +1,288 @@
+<title>세포 ROS 센서 연구의 새로움</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.callout{background:var(--inv-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--inv);font-size:1rem}
+.callout p{font-size:.9rem}
+.axes{display:flex;flex-direction:column}
+.axis-row{display:grid;grid-template-columns:minmax(0,200px) 1fr 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line)}
+.axis-row:last-child{border-bottom:1px solid var(--line)}
+.axis-row h3{font-size:1rem}
+.axis-row .k{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+.axis-row .col{font-size:.87rem}
+.axis-row .col b{display:block;font-family:var(--mono);font-size:.72rem;font-weight:500;color:var(--muted);margin-bottom:4px;letter-spacing:.04em}
+@media (max-width:720px){.axis-row{grid-template-columns:1fr;gap:6px}}
+.projects{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.proj{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0;border-top:4px solid var(--pb)}
+.proj .tag{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.proj p{font-size:.88rem}
+.proj ul{margin:0;padding-left:18px;font-size:.85rem;color:var(--muted)}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.formula{font-family:var(--mono);font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Novelty strategy · 2026-11 기준</span>
+  <h1>세포 ROS 센서 연구의 새로움 찾기</h1>
+  <p class="lede">세포에서 H₂O₂를 전기화학으로 재는 연구는 이미 많습니다. 지금까지 정한 설계(Pt 웨이퍼 적층, 세포 위 배양, 중뇌 세포)를 기준으로, 어디가 이미 포화되어 있고 어디가 비어 있는지, 그리고 새로움을 주장할 수 있는 연구 방향을 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/64jymGiTnakERmXWbfmctU" target="_blank" rel="noopener">← Pt 웨이퍼 적층 설계</a> · <a href="https://claude.ai/artifact/6Vtqxwo6VKwCi442K7rd6W" target="_blank" rel="noopener">중뇌 센서 최적화</a> · <a href="https://claude.ai/artifact/QLUYEZ6EMAkLiwFqMF7KcA" target="_blank" rel="noopener">전체 지도</a></p>
+</header>
+
+<section>
+  <div class="callout">
+    <h3>이미 포화된 형태</h3>
+    <p>새 나노소재로 전극을 만들고 → 검출한계를 낮추고 → 암세포주나 대식세포에 PMA를 줘서 몇 분간의 H₂O₂ 방출을 한 번 재는 논문은 매우 많습니다. 소재만 바꾼 이 형태로는 새로움을 주장하기 어렵습니다. 새로움은 “무엇을, 얼마나 오래, 무엇과 함께, 어떤 생물학적 질문에 답하며” 재느냐에서 나와야 합니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">01 · 새로움의 여섯 축</span>
+  <h2>포화된 곳과 비어 있는 곳</h2>
+  <div class="axes">
+    <div class="axis-row">
+      <div><h3>측정 기간</h3><span class="k">시간</span></div>
+      <div class="col"><b>지금까지</b>대부분 자극 후 수 분~수 시간. 세포 배지에서 O₂•⁻를 8시간 넘게 연속 측정한 것이 최근 보고(2024). 대사물 센서(산소 · 포도당 · 젖산)는 장기 칩에서 1주 이상.</div>
+      <div class="col"><b>빈자리</b>같은 중뇌 뉴런에서 H₂O₂를 며칠~2주 연속 측정한 사례는 이번 조사에서 찾지 못했습니다. 분화 · 성숙 과정이나 독소 노출 후 서서히 진행되는 산화 스트레스를 시간 축으로 보는 것은 비어 있습니다.</div>
+    </div>
+    <div class="axis-row">
+      <div><h3>세포 모델</h3><span class="k">생물학</span></div>
+      <div class="col"><b>지금까지</b>암세포주, 대식세포, PC12가 대부분. 환자 iPSC 파킨슨병 뉴런(LRRK2 G2019S, SNCA 삼중복제)이 H₂O₂에 더 취약하다는 것은 형광 · 생존율로 보고됨. 중뇌 오가노이드에서는 LRRK2 변이 라인의 도파민 방출을 전기화학으로 재고 억제제 회복을 보인 연구가 있음.</div>
+      <div class="col"><b>빈자리</b>환자 iPSC 2D 도파민 뉴런(LRRK2 · SNCA · GBA)과 동질 유전자 대조군에서 H₂O₂를 실시간 · 장기로 비교한 전기화학 연구는 찾지 못했습니다.</div>
+    </div>
+    <div class="axis-row">
+      <div><h3>동시 측정</h3><span class="k">다중 모드</span></div>
+      <div class="col"><b>지금까지</b>CMOS 칩에서 전기생리 + 전기화학 동시 측정, 심근 조직에서 H₂O₂ 측정(2025), 도파민 + H₂O₂ 이중 기능 MEA(2023, 전기생리 없음).</div>
+      <div class="col"><b>빈자리</b>시험관 내 뉴런에서 발화(스파이크)와 H₂O₂를 같은 칩에서 동시에 기록한 연구는 찾지 못했습니다. “신경 활동이 늘면 H₂O₂가 언제 얼마나 따라오는가”는 열린 질문입니다.</div>
+    </div>
+    <div class="axis-row">
+      <div><h3>정량 지표</h3><span class="k">새 측정량</span></div>
+      <div class="col"><b>지금까지</b>대부분 “전류가 몇 배 올랐다”는 상대값.</div>
+      <div class="col"><b>빈자리</b>Pt는 산소도 잴 수 있어 같은 웨이퍼에 산소 전극을 함께 두면, 세포가 소비한 산소 중 몇 %가 H₂O₂로 새어 나오는지(산소 → H₂O₂ 전환율)를 실시간으로 낼 수 있습니다. 미토콘드리아 기능 이상을 보여 주는 새로운 지표가 될 수 있습니다.</div>
+    </div>
+    <div class="axis-row">
+      <div><h3>공간 정보</h3><span class="k">어디서</span></div>
+      <div class="col"><b>지금까지</b>대부분 원판 전극 하나에서 집단 평균.</div>
+      <div class="col"><b>빈자리</b>Pt 웨이퍼 미세 패턴으로 뉴런 영역과 미세아교 영역을 나눠 각각 재거나, 세포체 쪽과 신경돌기 쪽을 나눠 보는 공간 지도는 비어 있습니다.</div>
+    </div>
+    <div class="axis-row">
+      <div><h3>검증의 엄밀성</h3><span class="k">방법론</span></div>
+      <div class="col"><b>지금까지</b>도파민 환경에서의 간섭(도파민 퀴논)은 거의 다루지 않음. 광학 센서와의 교차 검증도 드묾.</div>
+      <div class="col"><b>빈자리</b>센티널 차감으로 도파민 퀴논 · 산소 간섭을 정량적으로 제거했음을 보이고, 같은 세포에서 유전자 부호화 H₂O₂ 형광 센서(HyPer 계열)와 동시에 비교하면 방법 자체가 기여가 됩니다.</div>
+    </div>
+  </div>
+  <p class="note">“빈자리”는 이번 웹 검색 범위에서 찾지 못했다는 뜻이고, 없다는 증거는 아닙니다. 논문 계획 전에 PubMed · Web of Science로 키워드 조합을 체계적으로 확인하세요.</p>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 구체적 연구 방향</span>
+  <h2>지금 설계로 가능한 세 가지 프레이밍</h2>
+  <div class="projects">
+    <div class="proj">
+      <span class="tag">방향 A · 시간 + 질병 모델</span>
+      <h3>환자 iPSC 도파민 뉴런의 산화 스트레스 궤적</h3>
+      <p>LRRK2 G2019S(또는 SNCA · GBA) 라인과 동질 유전자 대조군을 Pt 칩 위에서 키우며 7–14일 동안 H₂O₂를 연속 측정합니다.</p>
+      <ul>
+        <li>질문: 변이 뉴런은 기저 H₂O₂가 높은가, 아니면 스트레스 후 회복이 느린가?</li>
+        <li>개입: LRRK2 억제제, 항산화제로 궤적이 정상으로 돌아오는지</li>
+        <li>강점: 생물학적 메시지가 분명하고 기존 오가노이드 도파민 연구와 대비됨</li>
+      </ul>
+      <span><span class="pill go">추천 · 생물학 저널 지향</span></span>
+    </div>
+    <div class="proj">
+      <span class="tag">방향 B · 다중 모드 칩</span>
+      <h3>한 칩에서 H₂O₂ · 산소 · 신경 활동</h3>
+      <p>Pt 웨이퍼에 H₂O₂ 전극, 센티널, 산소 전극, 기록용 미세전극을 함께 패턴합니다.</p>
+      <ul>
+        <li>새 지표: 산소 소비 대비 H₂O₂ 생성 비율 (미토콘드리아 누출 지표)</li>
+        <li>질문: 자발 발화나 KCl · 글루탐산 자극 후 H₂O₂가 언제, 얼마나 따라오는가</li>
+        <li>강점: 장치 자체가 새로움. Pt 웨이퍼 미세공정의 장점을 그대로 살림</li>
+      </ul>
+      <span><span class="pill go">추천 · 장치 · 센서 저널 지향</span></span>
+    </div>
+    <div class="proj">
+      <span class="tag">방향 C · 공배양 공간 지도</span>
+      <h3>뉴런과 미세아교 중 누가 H₂O₂를 내는가</h3>
+      <p>미세 패턴으로 뉴런 영역과 미세아교 영역을 분리한 전극 배열 위에 공배양하고, LPS · α-시누클레인 응집체 자극 시 어느 영역에서 먼저 H₂O₂가 오르는지 봅니다.</p>
+      <ul>
+        <li>질문: 염증성 손상에서 산화 스트레스의 출발점과 전파</li>
+        <li>강점: 공간 정보 + 세포 간 상호작용</li>
+        <li>약점: 패터닝 · 공배양 난이도가 높음</li>
+      </ul>
+      <span><span class="pill mid">도전적 · 후속 과제로 적합</span></span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 새로움을 확보하는 방법</span>
+  <h2>계획 단계에서 정할 것</h2>
+  <div class="checks">
+    <div class="chk"><h3>질문을 먼저, 센서는 도구로</h3><p>“검출한계 X nM 달성”보다 “환자 뉴런은 정상 뉴런보다 산화 스트레스 회복이 N시간 느리다”처럼 생물학적 결론이 제목이 되도록 설계합니다.</p></div>
+    <div class="chk"><h3>기존 방법으로 못 하는 것을 보여 주기</h3><p>형광 염료는 종말점 측정이고 장기 노출 시 독성 · 광표백 문제가 있습니다. 같은 세포를 며칠간 반복해서 무표지로 측정해야만 보이는 현상을 핵심 결과로 잡습니다.</p></div>
+    <div class="chk"><h3>대조군이 곧 설득력</h3><p>동질 유전자 대조군, 세포 없는 웰, 촉매 없는 전극, 센티널 차감, 카탈레이스 소거, HyPer 형광 교차 검증. 이 세트가 갖춰지면 측정 자체의 신뢰도가 기여로 인정받습니다.</p></div>
+    <div class="chk"><h3>정량 지표 정의</h3><div class="formula">H₂O₂ 누출 비율 = H₂O₂ 생성 속도 / 산소 소비 속도</div><p>같은 칩의 두 전극으로 계산하는 새 지표처럼, 다른 연구가 비교할 수 있는 숫자를 하나 제시하면 인용 가능성이 높아집니다.</p></div>
+    <div class="chk"><h3>범위를 좁혀 확실히</h3><p>세 방향을 다 하려 하지 말고, 첫 논문은 방향 A 또는 B 하나로 갑니다. 다른 하나는 후속 연구로 남겨 둡니다.</p></div>
+    <div class="chk"><h3>선행 연구 확인 순서</h3><p>(1) “H2O2 + iPSC dopaminergic + electrochemical”, (2) “electrophysiology + H2O2 + MEA + neurons”, (3) “oxygen consumption + H2O2 + simultaneous + cells” 조합으로 최근 3년 문헌을 먼저 확인해 빈자리가 실제로 비어 있는지 검증합니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>세포 배지에서 O₂•⁻ 8시간 이상 연속 측정 (SOD + MXene, 금 미세선), Anal. Bioanal. Chem. (2024). <a href="https://par.nsf.gov/biblio/10586161" target="_blank" rel="noopener">NSF PAR</a></li>
+    <li>세포 대사 연속 측정 미세센서 리뷰, Lab Chip (2025). <a href="https://pubs.rsc.org/en/content/articlepdf/2025/lc/d4lc00437j" target="_blank" rel="noopener">RSC</a> · 장기 칩 1주 이상 대사 센서 <a href="https://pubs.rsc.org/en/content/articlehtml/2022/lc/d1lc00689d" target="_blank" rel="noopener">Lab Chip 2022</a></li>
+    <li>CMOS MEA + 개방형 미세유체, 심근 조직 전기생리 및 H₂O₂ 측정, Lab Chip (2025). <a href="https://pubs.rsc.org/en/content/articlepdf/2025/lc/d4lc01000k" target="_blank" rel="noopener">RSC</a> · 전기생리 · 전기화학 이중 모드 CMOS <a href="https://par.nsf.gov/biblio/10413587" target="_blank" rel="noopener">NSF PAR</a> · <a href="https://par.nsf.gov/servlets/purl/10483697" target="_blank" rel="noopener">NSF PAR</a></li>
+    <li>전기생리 · 전기화학 유연 MEA 리뷰, Biosensors (2025). <a href="https://rcastoragev2.blob.core.windows.net/e6acd2f0bf7cb00d8ce64772b589e914/biosensors-15-00100.pdf" target="_blank" rel="noopener">PDF</a> · 도파민 + H₂O₂ 이중 기능 MEA (2023) <a href="https://link.springer.com/article/10.1007/s10854-023-10282-4" target="_blank" rel="noopener">Springer</a> · 이중 모드 도파민 MEA 학위논문 <a href="https://eprints-prod-01.library.pitt.edu/47075/" target="_blank" rel="noopener">Pitt</a></li>
+    <li>파킨슨병 환자 iPSC 모델링, LRRK2 · SNCA 뉴런의 H₂O₂ 취약성. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3342500/" target="_blank" rel="noopener">PMC3342500</a> · <a href="https://www.cirm.ca.gov/about-cirm/publications/lrrk2-mutant-ipsc-derived-da-neurons-demonstrate-increased-susceptibility-oxidative-stress/" target="_blank" rel="noopener">CIRM</a> · iPSC 파킨슨 라인 산화 스트레스 형광 분석 <a href="https://asscr-2013.p.asnevents.com.au/days/2013-10-29/abstract/8592" target="_blank" rel="noopener">ASSCR 2013</a></li>
+    <li>중뇌 오가노이드 도파민 무표지 측정, LRRK2 G2019S와 억제제 회복 (TU Wien). <a href="https://publik.tuwien.ac.at/files/publik_299280.pdf" target="_blank" rel="noopener">TU Wien</a> · 산화환원 순환으로 오가노이드 신경전달물질 장기 측정 <a href="https://pubs.rsc.org/en/content/articlepdf/2021/an/d0an02206c" target="_blank" rel="noopener">Analyst 2021</a></li>
+  </ol>
+  <p class="note">빈자리 판단은 이번 검색 범위에 근거한 것으로, 체계적 문헌 조사를 대신하지 않습니다. 산소 → H₂O₂ 전환율 지표, 세 가지 연구 방향, HyPer 교차 검증은 제 제안입니다.</p>
+</section>
+
+</div>
