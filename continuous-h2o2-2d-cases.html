@@ -1,0 +1,284 @@
+<title>2D 세포 연속 H₂O₂ 필요성 사례</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.ec{background:var(--pb-soft);color:var(--pb)}
+.pill.fl{background:var(--min-soft);color:var(--min)}
+.callout{background:var(--non-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout.warn{background:var(--inv-soft)}
+.callout h3{color:var(--non);font-size:1rem}
+.callout.warn h3{color:var(--inv)}
+.callout p{font-size:.9rem}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:15px 17px;display:flex;flex-direction:column;gap:7px;min-width:0;border-left:3px solid var(--pb)}
+.paper.fluor{border-left-color:var(--min)}
+.paper .top{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.paper h3{font-size:.97rem;flex:1;min-width:14ch}
+.paper .meta{font-family:var(--mono);font-size:.73rem;color:var(--muted)}
+.paper .reveal{font-size:.88rem}
+.paper .reveal b{color:var(--non)}
+.paper .cell{font-family:var(--mono);font-size:.76rem;color:var(--pb)}
+.paper a{font-size:.8rem;word-break:break-all}
+.paperlist{display:flex;flex-direction:column;gap:12px}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Why continuous H₂O₂ · 2D cells · 2026-11 기준</span>
+  <h1>2D 세포 연속 H₂O₂ 측정 필요성 사례</h1>
+  <p class="lede">2D 세포 실험에서, 연속·실시간 H₂O₂ 측정이 종말점·간헐로는 못 볼 것을 실제로 보여준 사례를 모았습니다. 전기화학과 형광으로 나눠 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/PLkSdsTbeUENxs3eqMM6Eb" target="_blank" rel="noopener">← 연속 vs 간헐 (뇌)</a> · <a href="https://claude.ai/artifact/CP6PCF8Msi4ehUGaV8DEBJ" target="_blank" rel="noopener">2D 세포 H₂O₂ 논문</a></p>
+  <div class="callout">
+    <h3>핵심</h3>
+    <p>가장 강한 사례는 Bozem 2018(전기화학)입니다: 단일 세포에서 1 Hz로 연속 측정하며 <b>생성과 분해 속도를 따로</b> 구했고, 비교군(ESR·형광)은 2.5만 세포를 뭉뚱그린 몇몇 시점값뿐이었습니다. 형광 쪽은 이동하는 세포의 <b>H₂O₂ 플래시(섬광)</b>처럼 연속이어야만 보이는 공간-시간 패턴을 보여줍니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 전기화학</span>
+  <h2>전기화학 연속 측정 사례</h2>
+  <div class="paperlist">
+
+    <div class="paper">
+      <div class="top"><h3>단일 세포 세포외 H₂O₂ 동역학 — 연속 vs 종말점 직접 대비</h3><span class="pill ec">전기화학</span></div>
+      <div class="meta">Bozem 등, Antioxid. Redox Signal. 2018 · <span class="cell">단일 비만세포(MC)</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 단일 세포에서 1 Hz로 연속 기록해 <b>H₂O₂ 생성 속도와 분해 속도를 분리</b>해 구함. 비교한 ESR·형광법은 측정 시점마다 약 2.5만 세포를 뭉뚱그린 값만 줌 — 종말점의 한계를 직접 대비한 드문 논문.</div>
+      <div class="reveal" style="font-size:.84rem;color:var(--muted)">당신 질문에 가장 정확히 맞는 사례: "왜 연속이어야 하는가"를 종말점과 나란히 보여줌.</div>
+      <a href="https://doi.org/10.1089/ars.2016.6840" target="_blank" rel="noopener">doi.org/10.1089/ars.2016.6840</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>신축 금 나노와이어 센서 — 늘린 상태의 세포 H₂O₂ 실시간</h3><span class="pill ec">전기화학</span></div>
+      <div class="meta">Anal. Chem. 2019; acs.analchem.9b02610 · <span class="cell">전극 위 배양 세포</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 세포를 늘리는 기계 자극 중에도 H₂O₂ 방출을 실시간으로 추적. 자극-반응의 시간 결합은 연속으로만 포착.</div>
+      <a href="https://pubs.acs.org/doi/10.1021/acs.analchem.9b02610" target="_blank" rel="noopener">pubs.acs.org/doi/10.1021/acs.analchem.9b02610</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>Co-NC/PS@CC 유연 센서 — 약물 자극 A549 실시간</h3><span class="pill ec">전기화학</span></div>
+      <div class="meta">Anal. Chim. Acta 2024; S0003267024004288 · <span class="cell">A549 폐암</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 포르볼에스터(PMA) 자극 후 A549가 내보내는 H₂O₂를 실시간 추적. 자극 직후 방출의 시간 경과를 포착.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0003267024004288" target="_blank" rel="noopener">sciencedirect.com/.../S0003267024004288</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>MOF 미세전극 — 종양세포 약물 자극 H₂O₂ 실시간</h3><span class="pill ec">전기화학</span></div>
+      <div class="meta">Biosens. Bioelectron. 2025; S0956566325011455 · <span class="cell">종양세포</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 약물 자극 시 세포 H₂O₂ 분비의 시간 경과를 비침습 실시간으로 측정.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0956566325011455" target="_blank" rel="noopener">sciencedirect.com/.../S0956566325011455</a>
+    </div>
+
+  </div>
+  <div class="callout warn" style="margin-top:4px">
+    <h3>경계</h3>
+    <p>전기화학 쪽에서 "연속 vs 종말점"을 <b>정면 대비</b>한 것은 사실상 Bozem 2018 하나입니다. 나머지는 "실시간으로 쟀다"까지이고, 간헐이었다면 못 봤을 것을 명시적으로 보인 건 아닙니다. 이 빈자리가 당신이 채울 지점입니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 형광 (유전자 부호화)</span>
+  <h2>형광 연속 이미징 사례 — 전기화학의 논거로</h2>
+  <p class="muted">형광 HyPer류는 전기화학은 아니지만, "연속 H₂O₂가 무엇을 더 보여주나"를 2D 세포에서 가장 선명하게 입증합니다. 당신 논문의 서론·논거로 쓰기 좋습니다.</p>
+  <div class="paperlist">
+
+    <div class="paper fluor">
+      <div class="top"><h3>이동 세포의 H₂O₂ 플래시 — 액틴·이동·상처치유 조율</h3><span class="pill fl">형광</span></div>
+      <div class="meta">Nat. Commun. 2025; s41467-025-62272-1 · <span class="cell">이동 세포(2D)</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 이동 세포 앞쪽 가장자리에서 짧은 H₂O₂ <b>플래시(섬광)</b>, 뒤쪽에선 지속적 생성. 이 시공간 패턴이 액틴 재배열·세포 이동을 조율. 종말점으로는 플래시 존재 자체를 알 수 없음.</div>
+      <div class="reveal" style="font-size:.84rem;color:var(--muted)">"연속이어야만 보이는 것"의 2025년 대표 사례.</div>
+      <a href="https://www.nature.com/articles/s41467-025-62272-1" target="_blank" rel="noopener">nature.com/articles/s41467-025-62272-1</a>
+    </div>
+
+    <div class="paper fluor">
+      <div class="top"><h3>HyPer 원조 — NGF 자극 PC-12 H₂O₂ 시간 상승, 미토 진동성 분출</h3><span class="pill fl">형광</span></div>
+      <div class="meta">Belousov 등, Nat. Methods 2006; nmeth866 · <span class="cell">PC-12, HeLa</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 신경성장인자(NGF) 자극 후 세포질 H₂O₂가 시간에 따라 오르는 것, 그리고 아폽토시스 HeLa에서 막전위 진동 중 미토콘드리아 H₂O₂가 <b>국소적으로 분출</b>하는 것. 둘 다 연속 이미징이라야 보임.</div>
+      <a href="https://www.nature.com/articles/nmeth866" target="_blank" rel="noopener">nature.com/articles/nmeth866</a>
+    </div>
+
+    <div class="paper fluor">
+      <div class="top"><h3>표적 HyPer7 다중 이미징 — 세포소기관별 응답 속도 차이</h3><span class="pill fl">형광</span></div>
+      <div class="meta">PMC8466187 / Biosensors 11:338 · <span class="cell">공배양 세포주</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 낮은 세포외 H₂O₂에 미토콘드리아가 핵·세포질보다 2배 빠르게 반응. 세포소기관별 시간차는 연속으로만 분해됨.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8466187/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/pmc/articles/PMC8466187</a>
+    </div>
+
+    <div class="paper fluor">
+      <div class="top"><h3>HyPer-3 — 빠른 응답·회복으로 동적 변화 추적</h3><span class="pill fl">형광</span></div>
+      <div class="meta">Bilan 등, ACS Chem. Biol. 2013 · <span class="cell">세포·제브라피시</span></div>
+      <div class="reveal"><b>연속이 보여준 것:</b> 산화·환원 동역학이 빨라져, 이전 버전이 놓치던 빠른 H₂O₂ 변동을 추적. 센서의 시간 분해능 자체가 "무엇을 볼 수 있나"를 결정함을 보임.</div>
+      <a href="https://www.researchgate.net/publication/233962860" target="_blank" rel="noopener">HyPer-3 (ResearchGate)</a>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 정리</span>
+  <h2>이 사례들이 공통으로 말하는 것</h2>
+  <div class="checks">
+    <div class="chk"><h3>생성과 분해를 분리</h3><p>연속이면 "순 농도"가 아니라 생성 속도와 제거 속도를 따로 구합니다(Bozem). 정상·질병·회복 군에서 이 둘을 비교하면 종말점보다 훨씬 깊은 결론.</p></div>
+    <div class="chk"><h3>일과성·플래시 포착</h3><p>짧게 솟는 H₂O₂ 섬광(이동 세포, 미토 진동)은 간헐로는 존재조차 모릅니다. "있다/없다"를 가르는 건 연속뿐.</p></div>
+    <div class="chk"><h3>시점·순서·속도</h3><p>자극 후 언제 오르고 얼마나 빨리 회복되는지. 세포소기관 간 시간차. 모두 연속의 산물.</p></div>
+    <div class="chk"><h3>집단 평균의 함정 회피</h3><p>종말점은 수만 세포를 뭉뚱그려 단일 세포·이질성을 지웁니다. 연속·단일세포는 그 분포를 살림.</p></div>
+  </div>
+  <div class="callout">
+    <h3>당신 연구로 연결</h3>
+    <p>전기화학에서 "연속 vs 종말점"을 2D 세포로 정면 대비한 건 Bozem 2018이 거의 유일합니다. 형광 쪽 사례(플래시·생성/분해 분리·소기관 시간차)를 <b>서론의 논거</b>로 삼고, 중뇌 세포에서 <b>전기화학 연속으로 그런 동역학을 처음 포착</b>하면 전기화학 쪽 공백을 메우는 노블티가 됩니다.</p>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처 · 한계</span>
+  <ol>
+    <li>Bozem 등, 단일세포 세포외 H₂O₂ 연속 전기화학 vs 종말점, ARS (2018). <a href="https://doi.org/10.1089/ars.2016.6840" target="_blank" rel="noopener">DOI</a></li>
+    <li>신축 금 나노와이어 세포 H₂O₂ 실시간, Anal. Chem. (2019). <a href="https://pubs.acs.org/doi/10.1021/acs.analchem.9b02610" target="_blank" rel="noopener">ACS</a></li>
+    <li>Co-NC/PS@CC 유연 센서 A549 실시간, Anal. Chim. Acta (2024). <a href="https://www.sciencedirect.com/science/article/abs/pii/S0003267024004288" target="_blank" rel="noopener">SD</a> · MOF 미세전극 종양세포 <a href="https://www.sciencedirect.com/science/article/abs/pii/S0956566325011455" target="_blank" rel="noopener">SD</a></li>
+    <li>이동 세포 H₂O₂ 플래시, Nat. Commun. (2025). <a href="https://www.nature.com/articles/s41467-025-62272-1" target="_blank" rel="noopener">Nature</a></li>
+    <li>HyPer 원조, Nat. Methods (2006). <a href="https://www.nature.com/articles/nmeth866" target="_blank" rel="noopener">Nature</a> · 표적 HyPer7 다중 이미징 <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8466187/" target="_blank" rel="noopener">PMC8466187</a> · HyPer-3 <a href="https://www.researchgate.net/publication/233962860" target="_blank" rel="noopener">RG</a></li>
+  </ol>
+  <p class="note">전기화학에서 종말점과 정면 대비한 2D 사례는 Bozem 2018 외에는 찾지 못했습니다. 나머지 전기화학 논문은 "실시간 측정"까지입니다. 형광 사례는 전기화학이 아니므로 논거·서론용으로만 쓰세요. 검색 요약 기반이며 원문은 확인 권장.</p>
+</section>
+
+</div>
