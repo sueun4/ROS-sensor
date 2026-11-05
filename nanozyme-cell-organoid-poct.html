@@ -1,0 +1,328 @@
+<title>나노자임 세포·오가노이드 실시간·POCT 논문</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.rt{background:var(--non-soft);color:var(--non)}
+.pill.poc{background:var(--pb-soft);color:var(--pb)}
+.pill.d3{background:var(--min-soft);color:var(--min)}
+.pill.d2{background:var(--vit-soft);color:var(--vit)}
+.callout{background:var(--inv-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--inv);font-size:1rem}
+.callout p{font-size:.9rem}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.paper .top{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.paper h3{font-size:.98rem;flex:1;min-width:14ch}
+.paper .meta{font-family:var(--mono);font-size:.73rem;color:var(--muted)}
+.paper .sum{font-size:.88rem}
+.paper .sum b{color:var(--pb)}
+.paper .feat{font-size:.83rem;color:var(--muted)}
+.paper a{font-size:.8rem;word-break:break-all}
+.paperlist{display:flex;flex-direction:column;gap:12px}
+.legend2{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.t td.c{text-align:center;font-family:var(--mono);font-size:.8rem}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Nanozyme · cells/organoid · real-time/POCT · 2026-11 기준</span>
+  <h1>나노자임 세포·오가노이드 실시간·POCT 논문</h1>
+  <p class="lede">나노자임을 2D 세포나 3D 모델(오가노이드·스페로이드)에 적용해 H₂O₂·ROS를 실시간 또는 현장진단(POCT)으로 읽어내는 논문을 모았습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/CP6PCF8Msi4ehUGaV8DEBJ" target="_blank" rel="noopener">← 2D 세포 H₂O₂ 논문 정리</a> · <a href="https://claude.ai/artifact/JJ64SAsPAdcKdkTRoy9agP" target="_blank" rel="noopener">새로움 전략</a></p>
+  <div class="callout">
+    <h3>핵심: 2D는 많고, 오가노이드는 거의 비어 있다</h3>
+    <p>나노자임 + 2D 세포 + 실시간/POCT 논문은 많습니다. 하지만 <b>나노자임을 진짜 오가노이드(또는 다세포 스페로이드)에 적용해 ROS를 실시간·POCT로 읽은 논문은 이번 조사에서 찾지 못했습니다.</b> 3D는 스캐폴드·하이드로겔 배양까지가 최전선이고, 오가노이드는 열린 공백입니다. 당신 연구의 차별점이 될 수 있습니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 2D 세포 · 실시간/POCT</span>
+  <h2>나노자임 + 2D 세포</h2>
+  <div class="legend2">
+    <span><span class="pill rt">실시간</span> 연속 전기화학</span>
+    <span><span class="pill poc">POCT</span> 스마트폰·휴대형·종이</span>
+    <span><span class="pill d2">2D</span> 단층 세포</span>
+  </div>
+  <div class="paperlist">
+
+    <div class="paper">
+      <div class="top"><h3>MOF-818 나노자임 색-전기화학 이중 모드 스마트폰 플랫폼</h3><span class="pill poc">POCT</span><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">Chem. Eng. J. 2023; S1385894722038049</div>
+      <div class="sum"><b>한줄 요약:</b> MOF-818 나노자임으로 살아 있는 세포의 H₂O₂·H₂S를 색 변화와 전기화학으로 동시에 읽고, 스마트폰과 소형 분석기로 현장 측정.</div>
+      <div class="feat">POCT 포인트: 비색+전기화학 이중 모드, 스마트폰 판독. 당신이 말한 "POCT로 읽어내는" 구성의 대표 사례.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S1385894722038049" target="_blank" rel="noopener">sciencedirect.com/.../S1385894722038049</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>Pd-ReS₂-MXene 나노자임 + AI 스마트폰 플랫폼 (H₂O₂·GSH)</h3><span class="pill poc">POCT</span><span class="pill d2">2D</span></div>
+      <div class="meta">PubMed 41349441, 2025</div>
+      <div class="sum"><b>한줄 요약:</b> 결함 공학 Pd-ReS₂-MXene 나노자임으로 살아 있는 세포의 H₂O₂(LOD 0.43 nM)·GSH를 종이 소자+스마트폰 분석기로 측정, 머신러닝 보조.</div>
+      <div class="feat">POCT 포인트: 종이 기반+스마트폰+AI. 다만 전기화학이 아닐 수 있어 방법 확인 필요.</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/41349441/" target="_blank" rel="noopener">pubmed.ncbi.nlm.nih.gov/41349441</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>MOF 유래 다공성 탄소 나노자임 유연 전극</h3><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">Talanta 2023; S0039914023008834</div>
+      <div class="sum"><b>한줄 요약:</b> MOF 유래 다공성 탄소 나노자임을 PDMS 유연 전극에 올려 HeLa 세포 방출 H₂O₂를 in situ·실시간 측정, 세포 72시간 생존.</div>
+      <div class="feat">실시간 포인트: 세포를 전극 위에서 키우며 연속 측정 + 장기 생존 확인. 당신의 "세포 위 배양형"과 가장 가까움.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0039914023008834" target="_blank" rel="noopener">sciencedirect.com/.../S0039914023008834</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>나노자임 강화 FET 나노센서 (PtO/PtO₂–C₃N₄)</h3><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">Biosens. Bioelectron. 2025; PMID 40460459</div>
+      <div class="sum"><b>한줄 요약:</b> 나노자임을 rGO FET 채널에 올려 세포 방출 H₂O₂를 실시간 측정하고 암세포·정상세포를 구분(LOD 0.5 pM 주장).</div>
+      <div class="feat">실시간 포인트: FET 증폭으로 극저농도. 생물학적 구분(패턴 1)을 결합.</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/40460459/" target="_blank" rel="noopener">pubmed.ncbi.nlm.nih.gov/40460459</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>FeₓN_y@C 나노자임 pH 비의존 이중 모드 센서</h3><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">Microchem. J. 2025; S0026265X25034848</div>
+      <div class="sum"><b>한줄 요약:</b> Fe-N 나노자임으로 pH에 무관하게 살아 있는 세포 H₂O₂를 이중 모드로 측정, 조기 암 진단 지향.</div>
+      <div class="feat">포인트: pH 비의존은 배지 변동에 강점. 이중 모드로 신뢰도 보강.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0026265X25034848" target="_blank" rel="noopener">sciencedirect.com/.../S0026265X25034848</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>MOF 유래 나노자임 변형 그래핀 섬유 미세전극</h3><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">PMC8980740 (Front. Chem.)</div>
+      <div class="sum"><b>한줄 요약:</b> Cu₂(OH)₃NO₃@ZnO 나노자임을 그래핀 섬유 미세전극에 올려 암세포의 H₂O₂를 in situ 측정.</div>
+      <div class="feat">포인트: 섬유형 미세전극이라 국소 측정에 유리.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8980740/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/pmc/articles/PMC8980740</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>세라리아(CeO₂) 다공성 중공 미세구 나노자임 유연 센서</h3><span class="pill rt">실시간</span><span class="pill d2">2D</span></div>
+      <div class="meta">PMC12563342</div>
+      <div class="sum"><b>한줄 요약:</b> 다공성 세리아 중공 미세구 나노자임 유연 전극으로 H₂O₂를 민감하게 측정.</div>
+      <div class="feat">포인트: CeO₂는 SOD·카탈레이스 유사 활성으로 ROS 다종에 확장 여지.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12563342/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/pmc/articles/PMC12563342</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>이금속 단일원자 나노자임 전기화학-광열 휴대형 면역분석</h3><span class="pill poc">POCT</span><span class="pill d2">2D</span></div>
+      <div class="meta">PMC11339724</div>
+      <div class="sum"><b>한줄 요약:</b> 이금속 단일원자 나노자임으로 전기화학+광열 이중 기능 휴대형 분석, 스마트폰 이미징.</div>
+      <div class="feat">POCT 포인트: 단일원자 나노자임 + 스마트폰. 면역분석이지만 POCT 설계 참고용.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11339724/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/pmc/articles/PMC11339724</a>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 3D 모델 · 가장 근접</span>
+  <h2>나노자임 + 3D (스캐폴드·하이드로겔)</h2>
+  <p class="muted">진짜 오가노이드는 아직 없지만, 3D 배양에 나노자임을 적용한 논문은 나오기 시작했습니다. 아래가 당신 목표에 가장 가깝습니다.</p>
+  <div class="legend2">
+    <span><span class="pill d3">3D</span> 스캐폴드·하이드로겔·스페로이드</span>
+  </div>
+  <div class="paperlist">
+
+    <div class="paper">
+      <div class="top"><h3>Fe₃O₄ 나노자임 코팅 그래핀 폼 3D 스캐폴드</h3><span class="pill rt">실시간</span><span class="pill d3">3D</span></div>
+      <div class="meta">Microchim. Acta 2022; s00604-022-05203-x</div>
+      <div class="sum"><b>한줄 요약:</b> 그래핀 폼에 Fe₃O₄ 나노자임(퍼옥시다제 모사)을 코팅한 3D 스캐폴드에서 MCF-7·HeLa를 키우며 방출 H₂O₂를 in situ 측정.</div>
+      <div class="feat">3D 포인트: 전극이 곧 3D 배양 지지체. 스페로이드는 아니지만 3D 통합의 원형.</div>
+      <a href="https://link.springer.com/article/10.1007/s00604-022-05203-x" target="_blank" rel="noopener">link.springer.com/article/10.1007/s00604-022-05203-x</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>나노복합 바이오센서로 3D 하이드로겔 폐암 세포 산화 스트레스 추적</h3><span class="pill rt">실시간</span><span class="pill d3">3D</span></div>
+      <div class="meta">Microsyst. Nanoeng. 2025; s41378-025-01016-z</div>
+      <div class="sum"><b>한줄 요약:</b> 비효소 전기화학 센서로 3D 하이드로겔 배양 폐암 세포의 호노키올 유발 산화 스트레스(H₂O₂) 동역학을 추적. 스페로이드·오가노이드 모델에도 적용 가능하다고 명시.</div>
+      <div class="feat">3D 포인트: 약물 반응을 3D에서 시간에 따라 봄. 오가노이드 확장을 직접 언급한 드문 사례.</div>
+      <a href="https://www.nature.com/articles/s41378-025-01016-z" target="_blank" rel="noopener">nature.com/articles/s41378-025-01016-z</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>펩타이드 하이드로겔 바이오센서로 3D 유방암 세포 H₂O₂·NO 동시 측정</h3><span class="pill rt">실시간</span><span class="pill d3">3D</span></div>
+      <div class="meta">Microchim. Acta 2024; s00604-024-06594-9</div>
+      <div class="sum"><b>한줄 요약:</b> 티타늄 메시 위 Pt 나노입자로 3D 배양 유방암 세포의 H₂O₂·NO를 약물 처리 후 동시 측정.</div>
+      <div class="feat">3D 포인트: 다중 ROS/RNS 동시 측정 + 3D. Pt NP는 나노자임 성격.</div>
+      <a href="https://link.springer.com/article/10.1007/s00604-024-06594-9" target="_blank" rel="noopener">link.springer.com/article/10.1007/s00604-024-06594-9</a>
+    </div>
+
+  </div>
+  <div class="callout" style="margin-top:4px">
+    <h3>빈자리: 진짜 오가노이드 + 나노자임 + 실시간/POCT</h3>
+    <p>스캐폴드·하이드로겔까지는 왔지만, <b>자기조직화 오가노이드에 나노자임 전극을 붙여 ROS를 실시간·POCT로 읽은 논문은 확인되지 않았습니다.</b> 앞서 본 Transwell·절편·마이크로웰 구성(세포 위 센서 페이지)과 결합하면 선점할 수 있는 영역입니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 읽어내는 방식 분류</span>
+  <h2>실시간 vs POCT, 무엇이 다른가</h2>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>방식</th><th>판독</th><th>장점</th><th>약점</th><th>이 목록의 예</th></tr></thead>
+    <tbody>
+      <tr><td>실시간 연속 전기화학</td><td class="c">퍼텐쇼스탯 암페로메트리</td><td>시간 동역학, 약물 반응 추적</td><td>장비 고정, 현장성 낮음</td><td>MOF 탄소 유연 전극, FET, Fe₃O₄ 스캐폴드</td></tr>
+      <tr><td>비색 POCT</td><td class="c">색 변화 → 눈·스마트폰</td><td>간단, 저비용, 현장</td><td>정량성·연속성 낮음</td><td>Cu-Fe 산화물(용액)</td></tr>
+      <tr><td>이중 모드 (색+전기화학)</td><td class="c">스마트폰+소형 분석기</td><td>현장성+정량 교차 검증</td><td>소자 복잡</td><td>MOF-818, 이금속 단일원자</td></tr>
+      <tr><td>종이·AI 보조</td><td class="c">종이 소자+스마트폰+ML</td><td>초저가, 대량</td><td>세포 연속 측정엔 부적합</td><td>Pd-ReS₂-MXene</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="checks">
+    <div class="chk"><h3>실시간과 POCT는 보통 양립이 어렵다</h3><p>세포를 며칠 키우며 연속으로 보는 "실시간"과, 현장에서 한 번 빠르게 읽는 "POCT"는 설계가 다릅니다. 두 목표 중 어디에 무게를 둘지 먼저 정하는 것이 좋습니다.</p></div>
+    <div class="chk"><h3>이중 모드가 상위 저널의 흐름</h3><p>순수 전기화학 나노자임 POCT는 드물어, 색+전기화학 이중 모드가 많습니다. 서로를 교차 검증하는 구성이 설득력을 높입니다.</p></div>
+    <div class="chk"><h3>CeO₂·Fe-N계는 ROS 다종 확장</h3><p>세리아나 Fe-N 나노자임은 SOD·카탈레이스 유사 활성을 겸해, H₂O₂를 넘어 O₂•⁻까지 넓힐 여지가 있습니다.</p></div>
+    <div class="chk"><h3>중뇌·오가노이드는 여전히 공백</h3><p>이 목록의 세포는 거의 암세포(HeLa·MCF-7·폐암)입니다. 중뇌 세포나 오가노이드는 나노자임 적용 사례가 드뭅니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">참고 리뷰 · 확인 요망</span>
+  <ol>
+    <li>나노자임 다중 모드 POCT 전략 리뷰, Biosensors (2025). <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12190383/" target="_blank" rel="noopener">PMC12190383</a> · 나노자임 POCT 리뷰 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8438099/" target="_blank" rel="noopener">PMC8438099</a></li>
+    <li>ROS 전기화학 검출 나노효소 정리. <a href="https://encyclopedia.pub/entry/48588" target="_blank" rel="noopener">encyclopedia.pub/entry/48588</a> · 산화철 나노자임 분석 응용 리뷰 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11727870/" target="_blank" rel="noopener">PMC11727870</a></li>
+    <li>3D rGO–MXene–MWCNT 전극(비나노자임, 암 조직·세포). <a href="https://doi.org/10.3390/bios14060261" target="_blank" rel="noopener">Biosensors 2024</a></li>
+  </ol>
+  <p class="note">웹 검색 결과 기반이며 원문 전체·게재 연도·방법(전기화학 여부)·성능 수치는 검증하지 못했습니다. 특히 "오가노이드 적용 가능" 같은 표현은 저자의 전망일 수 있으니 원문으로 확인하세요. 진짜 오가노이드 사례를 더 찾으려면 "intestinal/brain organoid" + "nanozyme" + "amperometric/electrochemical" 조합으로 좁혀 검색하는 것을 권합니다.</p>
+</section>
+
+</div>
