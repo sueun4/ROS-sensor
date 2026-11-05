@@ -1,0 +1,314 @@
+<title>2D 세포 H₂O₂ 측정 논문 정리</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.hi{background:var(--inv-soft);color:var(--inv)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.lo{background:var(--vit-soft);color:var(--vit)}
+.callout{background:var(--inv-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--inv);font-size:1rem}
+.callout p{font-size:.9rem}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.paper .top{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.paper h3{font-size:.98rem;flex:1;min-width:0}
+.paper .meta{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.paper .sum{font-size:.88rem}
+.paper .sum b{color:var(--pb)}
+.paper a{font-size:.82rem;word-break:break-all}
+.paperlist{display:flex;flex-direction:column;gap:12px}
+.if-note{font-family:var(--mono);font-size:.72rem}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.chk .k{font-family:var(--mono);font-size:.72rem;color:var(--pb)}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">2D cell H₂O₂ literature · 최근 3년 · 2026-11 기준</span>
+  <h1>2D 세포 H₂O₂ 측정 논문 정리</h1>
+  <p class="lede">최근 3년(2023–2025) 2D 세포 대상 전기화학 H₂O₂ 측정 논문을 모으고, 고영향(IF가 높은) 논문의 전개 방식과 핵심 포인트를 뽑았습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/JJ64SAsPAdcKdkTRoy9agP" target="_blank" rel="noopener">← 새로움 전략</a> · <a href="https://claude.ai/artifact/Q4B1PoDeDBuqk2AP6pGa75" target="_blank" rel="noopener">Pt 기반 소재</a></p>
+  <div class="callout">
+    <h3>먼저 알아둘 점 — 이 주제에 IF 15+ 논문은 드물다</h3>
+    <p>“새 전극으로 세포 H₂O₂를 측정”하는 논문은 대부분 <b>Biosensors &amp; Bioelectronics(IF 약 12), Analytical Chemistry(약 7), Microchimica Acta(약 6), Small(약 13)</b>에 실립니다. IF 15를 넘는 논문은 소재나 측정이 아니라 <b>생물학적 발견, 또는 완결된 시스템(폐루프 · 생분해 · 생체 내)</b>을 앞세울 때 나옵니다. 이것이 지난 “새로움” 논의와 바로 이어집니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · IF 15+ 논문의 전개 방식</span>
+  <h2>고영향 논문은 무엇을 앞세우나</h2>
+  <p class="muted">검색된 논문과 이 분야의 일반적 패턴을 종합하면, 상위 저널에 실린 ROS · H₂O₂ 전기화학 논문은 아래 중 하나 이상을 “주인공”으로 삼습니다. 센서 성능표는 보조입니다.</p>
+  <div class="checks">
+    <div class="chk"><span class="k">패턴 1</span><h3>생물학적 질문이 제목</h3><p>“센서를 만들었다”가 아니라 “이 센서로 X를 발견했다”. 정상 vs 암세포 구분, 약물 반응, 질병 모델의 차이를 결론으로 내세웁니다.</p></div>
+    <div class="chk"><span class="k">패턴 2</span><h3>완결된 시스템</h3><p>감지에서 그치지 않고 무선 · 자가전원 · 생분해 · 폐루프(감지→약물 방출)까지 묶습니다. 장치 자체가 새로움이 됩니다.</p></div>
+    <div class="chk"><span class="k">패턴 3</span><h3>새 메커니즘 · 새 소재 원리</h3><p>단일원자 촉매처럼 촉매 작동 원리를 분광 · 이론으로 규명합니다. 성능보다 “왜 되는가”를 증명합니다.</p></div>
+    <div class="chk"><span class="k">패턴 4</span><h3>생체 내 · 실시간 확장</h3><p>세포에서 그치지 않고 생체 조직 · 동물로 같은 측정을 확장해 임상적 맥락을 줍니다.</p></div>
+    <div class="chk"><span class="k">패턴 5</span><h3>다중 모드 통합</h3><p>H₂O₂ + 전기생리, H₂O₂ + 산소, 이중 신호 비율 등 한 칩에서 여러 정보를 동시에 냅니다.</p></div>
+    <div class="chk"><span class="k">공통</span><h3>엄밀한 검증</h3><p>약리학적 소거(카탈레이스), 정상 세포 대조, 독립 방법(형광)과의 교차 검증을 갖춰 측정 신뢰도 자체를 기여로 만듭니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 상위 저널 후보</span>
+  <h2>IF 15+ 또는 그에 준하는 논문</h2>
+  <p class="muted">아래는 검색에서 확인한 것 중 영향력이 높은 축의 논문입니다. 순수 “2D 세포 H₂O₂ 전극” 논문보다는, 위 패턴으로 주제를 끌어올린 사례입니다. IF와 세부 사항은 반드시 원문으로 확인하세요.</p>
+  <div class="paperlist">
+
+    <div class="paper">
+      <div class="top"><h3>Pt-decorated MoO₃₋ₓ 나노자임 기반 무선 생분해성 이식 H₂O₂ 센서</h3><span class="pill mid">Small · IF ~13</span></div>
+      <div class="meta">Bi 등, Small, 2025;21(48):e08861</div>
+      <div class="sum"><b>한줄 요약:</b> 몸에 녹는 무선 이식형으로 생체 내 H₂O₂를 연속 측정(LOD 0.26 µM, 80시간 안정). 제거 수술이 필요 없음.</div>
+      <div class="sum" style="font-size:.84rem;color:var(--muted)"><b>전개 포인트:</b> 패턴 2(완결 시스템) + 패턴 4(생체 내). 전극 성능보다 “생분해 + 무선 + 생체 내”라는 시스템 완결성이 핵심.</div>
+      <a href="https://onlinelibrary.wiley.com/doi/10.1002/smll.202508861" target="_blank" rel="noopener">onlinelibrary.wiley.com/doi/10.1002/smll.202508861</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>폐루프 생체전자 인공췌장 패치 (H₂O₂ 검출을 판독에 활용)</h3><span class="pill hi">Advanced Science · IF ~15</span></div>
+      <div class="meta">Liu 등, Advanced Science, 2025;e2503536</div>
+      <div class="sum"><b>한줄 요약:</b> 감지→인슐린 조절을 잇는 폐루프 패치. 혈당 측정에 H₂O₂ 검출을 쓰고, 돼지에서 72시간 정상 혈당 유지.</div>
+      <div class="sum" style="font-size:.84rem;color:var(--muted)"><b>전개 포인트:</b> 패턴 2의 전형. 대상은 H₂O₂ 자체가 아니라 당뇨 제어지만, “감지+작동 폐루프”가 상위 저널로 가는 길을 보여 줌.</div>
+      <a href="https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202503536" target="_blank" rel="noopener">advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202503536</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>나노자임 강화 FET 나노센서로 세포 내 H₂O₂ 실시간 측정</h3><span class="pill mid">Biosens. Bioelectron. · IF ~12</span></div>
+      <div class="meta">ScienceDirect, 2025 (PMID 40460459)</div>
+      <div class="sum"><b>한줄 요약:</b> PtO/PtO₂–C₃N₄ 나노자임을 rGO FET 채널에 올려 세포 방출 H₂O₂를 측정하고 암세포와 정상세포를 구분(LOD 0.5 pM 주장).</div>
+      <div class="sum" style="font-size:.84rem;color:var(--muted)"><b>전개 포인트:</b> 패턴 1(정상 vs 암 구분) + 패턴 3(나노자임). FET 증폭으로 극저농도를 주장.</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/40460459/" target="_blank" rel="noopener">pubmed.ncbi.nlm.nih.gov/40460459</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>Fe/Ce 이중 단일원자 나노자임 유연 센서로 살아 있는 쥐 뇌 H₂O₂ 측정</h3><span class="pill mid">저널 미확인</span></div>
+      <div class="meta">PubMed 41774526</div>
+      <div class="sum"><b>한줄 요약:</b> Fe/Ce 이중 단일원자 나노자임 유연 전극으로 쥐 뇌의 H₂O₂ 변화를 실시간 측정, 파킨슨병 모니터링 도구로 제시.</div>
+      <div class="sum" style="font-size:.84rem;color:var(--muted)"><b>전개 포인트:</b> 패턴 3(단일원자) + 패턴 4(생체 내 뇌). 중뇌 · 파킨슨 맥락이라 당신 연구와 가장 가까움.</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/41774526/" target="_blank" rel="noopener">pubmed.ncbi.nlm.nih.gov/41774526</a>
+    </div>
+
+    <div class="paper">
+      <div class="top"><h3>단일원자 나노자임 기반 산화 스트레스 바이오마커 전기화학 센싱 (리뷰)</h3><span class="pill mid">Trends in Chemistry · IF ~13</span></div>
+      <div class="meta">Cell Press, Trends in Chemistry, 2025</div>
+      <div class="sum"><b>한줄 요약:</b> 단일원자 나노자임으로 H₂O₂ 등 산화 스트레스 지표를 재는 최신 흐름을 정리한 리뷰. 세포 H₂O₂ 이중 측정 사례 포함.</div>
+      <div class="sum" style="font-size:.84rem;color:var(--muted)"><b>전개 포인트:</b> 리뷰. 상위 저널이 어떤 소재 · 방향을 주목하는지 지도로 활용하기 좋음.</div>
+      <a href="https://www.cell.com/trends/chemistry/abstract/S2589-5974(25)00090-5" target="_blank" rel="noopener">cell.com/trends/chemistry/abstract/S2589-5974(25)00090-5</a>
+    </div>
+
+  </div>
+  <p class="note">위 IF는 대략값입니다. Advanced Science는 최근 IF가 15 안팎을 오가고, Small · Trends in Chemistry · Biosensors &amp; Bioelectronics는 보통 15 미만입니다. 정확한 값은 해당 연도 JCR로 확인하세요. 저널 · 연도가 “미확인”인 항목은 PubMed 기록만 본 것입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 전형적 2D 세포 H₂O₂ 논문 (IF 15 미만)</span>
+  <h2>주류 저널의 최근 사례</h2>
+  <p class="muted">아래는 “2D 세포를 전극 위/근처에서 키우거나 올려 H₂O₂ 방출을 측정”한 전형적 최근 논문입니다. 대부분 소재 혁신 + 성능 + 세포 데모 구성이며 IF는 6–13 수준입니다.</p>
+  <div class="paperlist">
+    <div class="paper">
+      <div class="top"><h3>Porphyrin-MOF@MXene 하이브리드로 HeLa 세포 H₂O₂ 실시간 측정</h3><span class="pill lo">Sci. Rep. · IF ~4</span></div>
+      <div class="meta">Scientific Reports, 2025; s41598-025-89688-5</div>
+      <div class="sum"><b>한줄 요약:</b> 배위결합으로 연결한 포르피린-MOF/MXene 전극으로 HeLa 세포 방출 H₂O₂를 in situ 측정.</div>
+      <a href="https://www.nature.com/articles/s41598-025-89688-5" target="_blank" rel="noopener">nature.com/articles/s41598-025-89688-5</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>MOF 기능화 미세전극으로 종양세포 H₂O₂ 비침습 실시간 측정</h3><span class="pill mid">Biosens. Bioelectron. · IF ~12</span></div>
+      <div class="meta">ScienceDirect, 2025; S0956566325011455</div>
+      <div class="sum"><b>한줄 요약:</b> PDMS 챔버 바닥 박막 미세전극으로 살아 있는 종양세포의 H₂O₂를 용액 확산 없이 측정.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0956566325011455" target="_blank" rel="noopener">sciencedirect.com/.../S0956566325011455</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>FeₓN_y@C 나노자임 pH 비의존 이중 모드 H₂O₂ 센싱</h3><span class="pill lo">Microchem. J. · IF ~5</span></div>
+      <div class="meta">ScienceDirect, 2025; S0026265X25034848</div>
+      <div class="sum"><b>한줄 요약:</b> Fe-N 나노자임으로 pH에 무관하게 살아 있는 세포 H₂O₂를 이중 모드로 측정, 조기 암 진단 지향.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0026265X25034848" target="_blank" rel="noopener">sciencedirect.com/.../S0026265X25034848</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>금속 나노입자/MOF 나노자임 자가지지 전극으로 세포 H₂O₂ 측정</h3><span class="pill lo">Microchem. J. · IF ~5</span></div>
+      <div class="meta">ScienceDirect; S0026265X22005434</div>
+      <div class="sum"><b>한줄 요약:</b> 자가지지형 금속 NP/MOF 나노자임 전극으로 세포 방출 H₂O₂를 모니터링.</div>
+      <a href="https://www.sciencedirect.com/science/article/abs/pii/S0026265X22005434" target="_blank" rel="noopener">sciencedirect.com/.../S0026265X22005434</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>수직 금 나노와이어 신축 전극으로 세포 H₂O₂ 실시간 · in situ 측정</h3><span class="pill mid">Anal. Chem. · IF ~7</span></div>
+      <div class="meta">Analytical Chemistry, 2019 (참고 기준 논문)</div>
+      <div class="sum"><b>한줄 요약:</b> PDMS 위 수직 금 나노와이어 위에서 세포를 키우며, 늘린 상태에서도 H₂O₂ 방출을 측정.</div>
+      <a href="https://pubs.acs.org/doi/10.1021/acs.analchem.9b02610" target="_blank" rel="noopener">pubs.acs.org/doi/10.1021/acs.analchem.9b02610</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>3D rGO–MXene–MWCNT 전극으로 유방암 세포 · 조직 H₂O₂ 고감도 측정</h3><span class="pill lo">저널 확인 필요</span></div>
+      <div class="meta">PMC11201644, 2024</div>
+      <div class="sum"><b>한줄 요약:</b> 비효소 3D 복합 전극으로 MCF-7 · 4T1 세포와 쥐 유방암 조직의 H₂O₂를 측정.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11201644/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/pmc/articles/PMC11201644</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>Ni 나노입자/N-도핑 탄소 전극으로 A549 세포 H₂O₂ 측정</h3><span class="pill lo">J. Electron. Mater. · IF ~2</span></div>
+      <div class="meta">Springer, 2026; s11664-026-13156-7</div>
+      <div class="sum"><b>한줄 요약:</b> 퍼옥시다제 유사 Ni 전극으로 A549 폐암 세포의 H₂O₂ 방출을 실시간 측정.</div>
+      <a href="https://link.springer.com/article/10.1007/s11664-026-13156-7" target="_blank" rel="noopener">link.springer.com/article/10.1007/s11664-026-13156-7</a>
+    </div>
+    <div class="paper">
+      <div class="top"><h3>세포 H₂O₂ 전기화학 센싱 최근 발전 (암세포 중심 리뷰)</h3><span class="pill lo">리뷰</span></div>
+      <div class="meta">PMC9103167</div>
+      <div class="sum"><b>한줄 요약:</b> 암세포 방출 H₂O₂ 전기화학 측정의 소재 · 전략을 정리한 리뷰. 분야 지형 파악에 유용.</div>
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9103167/" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC9103167</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 당신 연구에 주는 시사점</span>
+  <h2>무엇을 취할까</h2>
+  <div class="checks">
+    <div class="chk"><h3>소재 경쟁은 레드오션</h3><p>MOF · MXene · 나노자임 · 단일원자로 세포 H₂O₂를 재는 논문은 이미 포화입니다. 소재만으로 IF 15를 넘기 어렵습니다.</p></div>
+    <div class="chk"><h3>상위로 가는 세 길</h3><p>(1) 생물학적 발견(중뇌 뉴런 vs 미세아교, 환자 iPSC 차이), (2) 완결 시스템(장기 연속 · 다중 모드), (3) 생체 내 확장. 지난 “새로움” 페이지의 방향 A · B가 여기에 해당합니다.</p></div>
+    <div class="chk"><h3>암세포가 아닌 중뇌가 차별점</h3><p>검색된 세포 논문은 거의 암세포(HeLa · A549 · MCF-7)입니다. 중뇌 DA 뉴런 · 미세아교는 모델 자체가 드물어 차별화 여지가 큽니다.</p></div>
+    <div class="chk"><h3>검증을 무기로</h3><p>도파민 퀴논 간섭 제거, 센티널 차감, 형광 교차 검증을 갖추면 암세포 중심 논문들이 다루지 않은 엄밀성을 확보할 수 있습니다.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">확인 요망</span>
+  <p class="note">이 목록은 웹 검색 결과를 바탕으로 했고 원문 전체 · 정확한 IF · 게재 연도를 모두 검증하지는 못했습니다. 특히 (1) 각 저널의 해당 연도 IF, (2) “저널 미확인” 항목의 서지정보, (3) 초록만 본 성능 수치(예: LOD 0.5 pM)는 과장일 수 있으니 원문으로 확인하세요. IF 15+만 확정해 추리려면, Web of Science · Scopus에서 “H2O2 OR hydrogen peroxide” + “living cells” + “electrochemical”로 2023–2025 범위를 걸고 저널별로 필터링하는 것을 권합니다. 원하시면 특정 저널(JACS · Angew · Adv. Mater. · Nat. Commun. · ACS Nano)로 좁혀 다시 검색하겠습니다.</p>
+</section>
+
+</div>
