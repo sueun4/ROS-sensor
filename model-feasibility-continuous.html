@@ -1,0 +1,278 @@
+<title>약물 모델 난이도와 간헐 측정</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.easy{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.hard{background:var(--inv-soft);color:var(--inv)}
+.qblock{border-left:3px solid var(--pb);padding-left:14px;margin-bottom:4px}
+.qblock .q{font-weight:700;font-size:1.02rem}
+.callout{background:var(--non-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout.warn{background:var(--inv-soft)}
+.callout h3{color:var(--non);font-size:1rem}
+.callout.warn h3{color:var(--inv)}
+.callout p{font-size:.9rem}
+.t td.c{text-align:center;font-family:var(--mono);font-size:.78rem}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.chk .k{font-family:var(--mono);font-size:.72rem;color:var(--pb)}
+.scale svg{width:100%;height:auto;display:block}
+.scale{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.scale svg{min-width:580px}
+.twocol{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card2{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;border-top:4px solid var(--pb)}
+.card2.a{border-top-color:var(--min)} .card2.b{border-top-color:var(--inv)}
+.card2 h3{font-size:1rem}
+.card2 p{font-size:.87rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Feasibility &amp; why intermittent · 2026-11 기준</span>
+  <h1>약물 모델의 난이도와 간헐 측정의 이유</h1>
+  <p class="lede">세포에 약물을 주고 질병·회복 모델을 만드는 게 실제로 쉬운지, 그리고 며칠간 연속 실시간이 아니라 하루 두세 번 측정하는 것이 한계인지(연속이 필요 없어서인지, 센서가 어려워서인지)를 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/HwFLHvPRrSZnbMozBRtj1H" target="_blank" rel="noopener">← 3군 모니터링과 한계</a> · <a href="https://claude.ai/artifact/GdskL3yPTz8ULBTokEyRA9" target="_blank" rel="noopener">IF 15 전략</a></p>
+</header>
+
+<section>
+  <div class="qblock"><span class="q">Q1. 약물 전달·질병 모델·회복은 쉬운가?</span></div>
+  <div class="callout warn">
+    <h3>약물 "주기"는 쉽지만, 질병·회복 모델을 "성립"시키는 건 어렵습니다</h3>
+    <p>2D 세포에 약물을 넣는 것 자체는 배지에 타는 수준이라 쉽습니다. 하지만 재현되는 질병 표현형을 만들고, 치료로 되돌리는 것(rescue)은 쉽지 않습니다. 독소마다 죽는 경로가 다르고, 구제 약물이 한 독소엔 듣고 다른 독소엔 안 듣습니다.</p>
+  </div>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>단계</th><th>방법</th><th>난이도</th><th>왜</th></tr></thead>
+    <tbody>
+      <tr><td>약물 전달 (2D)</td><td>배지에 첨가, 농도·시간 조절</td><td class="c"><span class="pill easy">쉬움</span></td><td>단층 세포엔 균일 노출. 국소·서방형 전달이면 난이도 상승</td></tr>
+      <tr><td>질병 모델 (독소형)</td><td>MPP⁺·로테논·6-OHDA 처리</td><td class="c"><span class="pill mid">중간</span></td><td>독소마다 죽는 경로가 다름(카스파제 의존/비의존). 용량·시간 표준이 없어 최적화 필요</td></tr>
+      <tr><td>질병 모델 (유전형)</td><td>환자 iPSC·동질유전자 변이주</td><td class="c"><span class="pill hard">어려움</span></td><td>분화 수 주, 비용·편차 큼. TH 양성 비율이 17–20%로 제각각</td></tr>
+      <tr><td>회복/구제</td><td>항산화제·억제제로 되돌리기</td><td class="c"><span class="pill hard">어려움</span></td><td>같은 약도 독소에 따라 완전~부분 구제. 생존과 형태 지표가 어긋나기도</td></tr>
+      <tr><td>세포 조성</td><td>DA 뉴런 비율 확인</td><td class="c"><span class="pill mid">중간</span></td><td>1차 배양은 DA 뉴런이 ~8%. TH 염색으로 반드시 확인·정규화</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="checks">
+    <div class="chk"><span class="k">쉬운 조합</span><h3>독소 모델 + 세포주</h3><p>SH-SY5Y·LUHMES에 MPP⁺/로테논을 주고 항산화제로 구제하는 조합이 가장 다루기 쉽습니다. 예비 실험·방법 확립용.</p></div>
+    <div class="chk"><span class="k">주의</span><h3>독소마다 다른 경로</h3><p>6-OHDA는 세포 없이도 자동산화로 H₂O₂를 만들어 센서 배경을 올립니다. 첫 모델로는 MPP⁺·로테논이 깔끔합니다.</p></div>
+    <div class="chk"><span class="k">어려운 조합</span><h3>iPSC + 유전 질병</h3><p>환자 변이 뉴런은 임팩트가 크지만 분화·재현성·비용이 큰 벽입니다. 협업이 거의 필수.</p></div>
+    <div class="chk"><span class="k">핵심</span><h3>구제의 정량 정의</h3><p>"회복"을 생존율·형태·H₂O₂ 중 무엇으로 볼지 미리 정하세요. 지표끼리 어긋날 수 있습니다.</p></div>
+  </div>
+  <p class="note">정리: 약물 주입은 쉽고, 독소 질병 모델은 중간, 유전 모델과 구제 성립은 어렵습니다. "약물로 3군을 모니터링"의 난관은 센서가 아니라 <b>생물학 모델을 믿을 만하게 세우는 쪽</b>에 있습니다.</p>
+</section>
+
+<section>
+  <div class="qblock"><span class="q">Q2. 며칠 연속이 아니라 하루 두세 번 측정 — 한계인가? 연속이 불필요해서인가, 센서가 어려워서인가?</span></div>
+  <div class="callout">
+    <h3>둘 다입니다. 그리고 "연속"이 늘 더 좋은 것도 아닙니다</h3>
+    <p>(1) 많은 생물학적 질문은 분~시간 단위라 초단위 연속이 꼭 필요하진 않고, (2) 동시에 세포 측정을 며칠 연속으로 하는 센서는 실제로 만들기 어렵습니다. 게다가 (3) 전기화학 측정은 그 자체가 H₂O₂를 소모하고 세포를 교란해서, "연속"이 공짜가 아닙니다.</p>
+  </div>
+
+  <h3 style="margin-top:8px">H₂O₂의 시간 스케일 — 연속이 어디까지 필요한가</h3>
+  <div class="scale">
+    <svg viewBox="0 0 600 150" role="img" aria-label="H2O2 관련 사건의 시간 스케일: 제거 반감기 초 단위, 신호 생성 펄스 분 단위, 질병·회복 궤적 시간~일 단위">
+      <line x1="30" y1="95" x2="580" y2="95" stroke="var(--line)"/>
+      <g font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)" text-anchor="middle">
+        <text x="70" y="112">0.1 s</text><text x="190" y="112">10 s</text><text x="310" y="112">10 min</text><text x="430" y="112">6 h</text><text x="550" y="112">7 d</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="10">
+        <rect x="50" y="70" width="70" height="18" rx="3" fill="var(--inv-soft)"/><text x="85" y="83" fill="var(--inv)" text-anchor="middle">제거 반감기</text>
+        <rect x="150" y="48" width="130" height="18" rx="3" fill="var(--min-soft)"/><text x="215" y="61" fill="var(--min)" text-anchor="middle">신호 생성 펄스 (분)</text>
+        <rect x="300" y="70" width="150" height="18" rx="3" fill="var(--pb-soft)"/><text x="375" y="83" fill="var(--pb)" text-anchor="middle">약물 반응 (시간)</text>
+        <rect x="420" y="48" width="150" height="18" rx="3" fill="var(--non-soft)"/><text x="495" y="61" fill="var(--non)" text-anchor="middle">질병·회복 궤적 (일)</text>
+      </g>
+      <text x="30" y="135" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">제거는 초, 생성 펄스는 분, 질병·회복은 시간~일. 당신이 보려는 "궤적"은 느린 쪽.</text>
+    </svg>
+  </div>
+  <p class="muted" style="font-size:.86rem">H₂O₂는 매우 빨리 제거됩니다(세포외 반감기 약 2.2초, 모델상 더 짧기도). 하지만 신호를 바꾸는 "생성"은 분 단위, 약물로 보려는 질병·회복 "궤적"은 시간~일 단위입니다. 즉 7일 추세를 보려면 하루 몇 번의 스냅샷으로 충분하고, 분 단위 동역학은 그 스냅샷(1000초) 안에서 잡힙니다.</p>
+
+  <div class="twocol">
+    <div class="card2 a">
+      <h3>왜 연속이 꼭 필요하진 않나</h3>
+      <p>질병·회복은 시간~일에 걸쳐 천천히 변합니다. 그 느린 궤적은 하루 2–3회 샘플링으로 충분히 그려집니다. 빠른 사건(약물 투여 직후 폭발)은 그 시점에 집중 측정하면 됩니다. 수면 측정처럼, 전 구간을 초단위로 볼 이유가 적습니다.</p>
+      <p>형광 이미징도 광독성·광표백 때문에 보통 간헐로 찍습니다. 생물학 자체가 "상시 관찰"을 요구하지 않는 경우가 많습니다.</p>
+    </div>
+    <div class="card2 b">
+      <h3>왜 며칠 연속이 어렵나 (센서 쪽)</h3>
+      <p><b>오염:</b> 배지 단백질이 전극을 덮어 감도가 수 시간~하루 안에 떨어집니다.</p>
+      <p><b>드리프트·보정:</b> 기준전극·감도가 흘러 주기적 재보정이 필요합니다.</p>
+      <p><b>측정이 교란:</b> 전위를 계속 걸면 전극이 H₂O₂를 소모하고 국소 pH·산소를 바꿔 세포를 스트레스합니다. 연속은 "읽는 동시에 지우는" 셈.</p>
+      <p><b>O₂ 배경·안정성:</b> 환원 모드 O₂ 배경, 효소·PB의 열화까지 겹칩니다.</p>
+    </div>
+  </div>
+
+  <div class="callout warn" style="margin-top:4px">
+    <h3>핵심: "연속 측정 못 함"은 한계이자 설계 선택</h3>
+    <p>맞습니다 — 하루 2–3회는 그 사이의 짧은 사건(예: 지나가는 H₂O₂ 파동)을 놓칩니다. 이건 진짜 한계입니다. 하지만 사람들이 간헐로 하는 건 게을러서가 아니라, (1) 느린 궤적엔 그걸로 충분하고 (2) 연속이 전극·세포를 망치기 때문입니다. <b>그래서 "진짜 연속 다일 측정이 필요한 질문"을 던지면, 그 자체가 비어 있는 노블티 영역</b>이 됩니다 — 단, 아래 장벽을 풀어야 합니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 연속 다일 측정을 노린다면</span>
+  <h2>풀어야 할 장벽과 방법</h2>
+  <div class="checks">
+    <div class="chk"><h3>오염 방지층</h3><p>가교 BSA 매트릭스, 양쪽성 고분자, 나노다공 촉매로 단백질 흡착을 막습니다(앞 최적화 페이지 참조). 연속 측정의 1차 관문.</p></div>
+    <div class="chk"><h3>교란 최소 측정</h3><p>전위를 계속 거는 대신 짧은 펄스 측정을 촘촘히(예: 수 분마다 수 초)해서 "준연속"으로 만듭니다. H₂O₂ 소모와 세포 스트레스를 줄입니다.</p></div>
+    <div class="chk"><h3>자가전원·저교란 방식</h3><p>연료전지형(자가전원)은 외부 전위가 없어 세포에 순합니다. 산물(O₂) 측정은 촉매만 쓰면 전위 없이도 가능. 연속에 유리한 대안.</p></div>
+    <div class="chk"><h3>내장 보정</h3><p>드리프트 자동 보정 알고리즘, 내부 기준 신호를 넣어 재보정 없이도 추세를 신뢰하게 만듭니다. 대사물 칩에서 1주+ 연속 선례.</p></div>
+    <div class="chk"><h3>Transwell 분리</h3><p>센서를 세포와 분리하면 측정 전극을 바꿔 끼우며 사실상 무한 연속에 가깝게 운용할 수 있습니다. 대신 시간 지연.</p></div>
+    <div class="chk"><h3>필요성부터 증명</h3><p>"연속이 간헐보다 무엇을 더 보여주는가"를 먼저 보이세요. 간헐로 놓친 사건을 연속으로 포착한 한 장면이 있으면 논문이 섭니다.</p></div>
+  </div>
+  <div class="callout">
+    <h3>당신 질문에 대한 직답</h3>
+    <p>지금 다들 간헐로 재는 건 <b>(a) 느린 질병·회복 궤적엔 간헐로 충분하고, (b) 진짜 연속 다일 측정 센서가 오염·드리프트·세포 교란 때문에 만들기 어렵기 때문</b>입니다. 둘 다 사실입니다. 그래서 "연속 다일"은 아직 열린 영역이고, 그걸 실제로 가능하게 만들면(오염 방지 + 저교란 + 자동 보정) 그 자체가 기술 노블티가 됩니다. 다만 그 전에 "연속이어야만 보이는 생물학"을 함께 제시해야 설득력이 생깁니다.</p>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처 · 한계</span>
+  <ol>
+    <li>H₂O₂ 시간 스케일: 제거 반감기와 분 단위 신호 생성, 세포외 반감기 2.2초. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5436100/" target="_blank" rel="noopener">PMC5436100</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8804256" target="_blank" rel="noopener">PMC8804256</a> · 초 단위 세포내 이미징 프로브 <a href="https://chemrxiv.org/engage/chemrxiv/article-details/60c74cd7337d6c2676e27cd9" target="_blank" rel="noopener">ChemRxiv</a></li>
+    <li>독소별 사멸 경로·구제 차이, 배양 조성 편차: <a href="https://pubmed.ncbi.nlm.nih.gov/31022188/" target="_blank" rel="noopener">PubMed 31022188</a> · 카복시풀러렌 구제 차이 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6483187" target="_blank" rel="noopener">PMC6483187</a> · NPD1 부분 구제 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6786015" target="_blank" rel="noopener">PMC6786015</a></li>
+    <li>전극 오염·재보정·배지 희석, 다일 운용: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9611932/" target="_blank" rel="noopener">PMC9611932</a> · <a href="https://pubs.rsc.org/en/content/articlehtml/2020/lc/c9lc01051c" target="_blank" rel="noopener">Lab Chip 2020</a></li>
+  </ol>
+  <p class="note">시간 스케일 수치는 서로 다른 맥락(모델·뇌 조직)에서 온 값이라 직접 비교는 주의하세요. 난이도 평가와 "연속이 필요한 질문" 제안은 일반 지식과 제 분석을 바탕으로 한 것입니다.</p>
+</section>
+
+</div>
