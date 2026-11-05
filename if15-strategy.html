@@ -1,0 +1,278 @@
+<title>세포 H₂O₂ 연구 IF 15 넘기기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.callout{background:var(--inv-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--inv);font-size:1rem}
+.callout p{font-size:.9rem}
+.ladder{display:flex;flex-direction:column;gap:0}
+.rung{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.rung:last-child{border-bottom:1px solid var(--line)}
+.rung .if{font-family:var(--mono);font-size:.82rem;color:var(--pb);font-weight:700}
+.rung .what{font-size:.9rem}
+.rung .what small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
+.rung .lv{font-family:var(--mono);font-size:.72rem}
+@media (max-width:560px){.rung{grid-template-columns:60px 1fr}.rung .lv{grid-column:2}}
+.levers{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.lever{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0;border-top:4px solid var(--pb)}
+.lever .n{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.lever h3{font-size:1rem}
+.lever p{font-size:.88rem;color:var(--muted)}
+.lever .ex{font-size:.82rem;background:var(--bg);border-radius:6px;padding:8px 10px}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.combo{background:var(--pb-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.combo ol{margin:0;padding-left:20px}
+.combo li{margin:5px 0;max-width:80ch}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Path to IF 15+ · 2026-11 기준</span>
+  <h1>세포 H₂O₂ 연구 IF 15 넘기기</h1>
+  <p class="lede">세포에서 H₂O₂를 재는 연구로 IF 15 이상 저널에 가려면 무엇을 확보해야 하는지, 지금까지 조사한 논문들의 패턴을 바탕으로 정리했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/PoMggNPwmeyjLqKa4i5FoQ" target="_blank" rel="noopener">← 나노자임 세포·오가노이드 논문</a> · <a href="https://claude.ai/artifact/CP6PCF8Msi4ehUGaV8DEBJ" target="_blank" rel="noopener">2D 세포 H₂O₂ 논문</a> · <a href="https://claude.ai/artifact/JJ64SAsPAdcKdkTRoy9agP" target="_blank" rel="noopener">새로움 전략</a></p>
+  <div class="callout">
+    <h3>한 줄 답</h3>
+    <p>IF 15+는 <b>더 좋은 센서</b>가 아니라 <b>센서로 답한 중요한 질문</b>이나 <b>센서가 가능하게 한 새 능력</b>에서 나옵니다. "소재+성능+세포 데모"는 IF 10 천장이고, 그 위로 가려면 <b>생물학적 발견·완결 시스템·새 측정 차원</b> 중 최소 하나를 주인공으로 세워야 합니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · 왜 천장이 생기나</span>
+  <h2>저널 IF 사다리와 그 이유</h2>
+  <div class="ladder">
+    <div class="rung"><span class="if">~5</span><span class="what">새 나노소재 + H₂O₂ 성능표 + 암세포 한 줄 데모<small>Microchem. J., J. Electron. Mater. 등</small></span><span class="lv pill lo">소재 교체</span></div>
+    <div class="rung"><span class="if">~7</span><span class="what">좋은 선택성·감도 + 꼼꼼한 전기화학 특성화<small>Anal. Chem., Talanta</small></span><span class="lv pill lo">방법 완성도</span></div>
+    <div class="rung"><span class="if">~10–13</span><span class="what">유연·웨어러블·FET·이중 모드 등 플랫폼 혁신 + 세포<small>Biosens. Bioelectron., Chem. Eng. J., Small</small></span><span class="lv pill mid">플랫폼</span></div>
+    <div class="rung"><span class="if">15–25</span><span class="what">센서로 밝힌 생물학 / 완결 시스템 / 새 측정 차원<small>Adv. Mater., Nat. Commun., JACS, Angew., ACS Nano, Sci. Adv.</small></span><span class="lv pill go">발견·시스템</span></div>
+    <div class="rung"><span class="if">30+</span><span class="what">질병·생리의 패러다임을 바꾸는 발견 (센서는 도구)<small>Nature, Science 계열</small></span><span class="lv pill go">패러다임</span></div>
+  </div>
+  <p class="note">같은 "세포 H₂O₂ 측정"이라도, 심사자가 묻는 질문이 사다리마다 다릅니다. 아래 ~13에서는 "센서가 더 좋아졌나?", 15+에서는 "이 논문이 없었다면 세상이 몰랐을 것이 무엇인가?"를 묻습니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 15를 넘기는 다섯 레버</span>
+  <h2>무엇을 주인공으로 세울까</h2>
+  <div class="levers">
+    <div class="lever">
+      <span class="n">레버 1 · 생물학적 발견</span>
+      <h3>센서로만 볼 수 있던 현상</h3>
+      <p>측정이 아니라 발견이 제목이 됩니다. 기존 방법(형광 종말점)으로 못 보던 것을 무표지·연속·실시간으로 처음 포착합니다.</p>
+      <div class="ex">예: 중뇌 DA 뉴런이 미세아교보다 산화 스트레스 회복이 느리다, 환자 변이 뉴런의 H₂O₂ 궤적이 대조군과 N시간 다르다.</div>
+    </div>
+    <div class="lever">
+      <span class="n">레버 2 · 완결 시스템</span>
+      <h3>감지에서 작동까지</h3>
+      <p>감지→판단→작동(약물 방출·피드백)을 하나로 묶은 폐루프, 또는 무선·자가전원·생분해 같은 시스템 완결성.</p>
+      <div class="ex">예: H₂O₂가 오르면 항산화제를 방출하는 폐루프, 몸에 녹는 무선 ROS 센서(Small 사례).</div>
+    </div>
+    <div class="lever">
+      <span class="n">레버 3 · 새 측정 차원</span>
+      <h3>지금껏 못 재던 조합</h3>
+      <p>H₂O₂ 하나가 아니라 공간·다중 화학종·다중 모드를 동시에 얻어, 새로운 정량 지표를 제시합니다.</p>
+      <div class="ex">예: 한 칩에서 H₂O₂+산소로 "산소→H₂O₂ 누출 비율" 산출, 발화(전기생리)와 H₂O₂ 동시 기록.</div>
+    </div>
+    <div class="lever">
+      <span class="n">레버 4 · 모델 난이도</span>
+      <h3>남들이 못 하는 샘플</h3>
+      <p>쉬운 암세포주가 아니라, 다루기 어렵고 임상적으로 중요한 모델에서 측정에 성공합니다.</p>
+      <div class="ex">예: 환자 iPSC 중뇌 뉴런, 뇌 오가노이드, 공배양, 생체 조직. 오가노이드 ROS 전기화학은 아직 거의 비어 있음.</div>
+    </div>
+    <div class="lever">
+      <span class="n">레버 5 · 새 메커니즘</span>
+      <h3>왜 되는지의 규명</h3>
+      <p>단일원자 촉매 활성 자리처럼 작동 원리를 분광·이론(DFT)으로 증명해, 소재 설계의 일반 규칙을 제시합니다.</p>
+      <div class="ex">예: 특정 금속-질소 배위가 H₂O₂ 환원을 왜 촉진하는지 규명하고 다른 ROS로 일반화.</div>
+    </div>
+  </div>
+  <div class="callout" style="margin-top:4px">
+    <h3>레버 하나로는 보통 부족, 둘을 엮어라</h3>
+    <p>IF 15+ 논문은 대개 <b>두 레버를 결합</b>합니다. "새 메커니즘(5) + 생체 내(4)", "완결 시스템(2) + 생물학 발견(1)"처럼요. 당신 설계로는 <b>레버 1(생물학) × 레버 4(중뇌·오가노이드)</b> 또는 <b>레버 3(다중 측정) × 레버 1</b>이 가장 자연스럽습니다.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 15+ 논문이 공통으로 갖춘 것</span>
+  <h2>심사를 통과시키는 토대</h2>
+  <div class="checks">
+    <div class="chk"><h3>엄밀한 특이성 증명</h3><p>카탈레이스 소거, 정상세포 대조, 독립 방법(HyPer 형광 등) 교차 검증. 측정이 진짜 H₂O₂임을 반박 불가능하게 보입니다. 상위 저널일수록 이 대조군을 깐깐히 봅니다.</p></div>
+    <div class="chk"><h3>정량적 생물학 결론</h3><p>"신호가 올랐다"가 아니라 "변이군이 대조군보다 H₂O₂ 플럭스가 2.3배, 회복 반감기가 1.8배"처럼 숫자로 된 생물학 결론.</p></div>
+    <div class="chk"><h3>기존 방법 대비 우위 입증</h3><p>형광·미세투석으로 못 하는 것을 이 센서가 한다는 직접 비교. 장기·무표지·실시간·국소가 흔한 차별점.</p></div>
+    <div class="chk"><h3>재현성·통계</h3><p>여러 배치·여러 분화 라인·충분한 n수와 통계. 세포 수 정규화. 소자 간 편차 보고.</p></div>
+    <div class="chk"><h3>임상·질병 맥락</h3><p>파킨슨병 같은 질병 모델과 연결하고, 약물 개입으로 표현형이 되돌아감을 보이면 영향력이 커집니다.</p></div>
+    <div class="chk"><h3>명확한 서사</h3><p>소재부터 설명하지 않고 질문→한계→해결→발견 순서로 이야기합니다. 그림 1이 센서 구조가 아니라 "풀려는 생물학 문제"인 경우가 많습니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 당신 설계로 가는 길</span>
+  <h2>지금 가진 것으로 15+를 노리는 조합</h2>
+  <div class="combo">
+    <h3>추천 패키지 (레버 1 × 3 × 4)</h3>
+    <ol>
+      <li><b>모델(레버 4):</b> 환자 iPSC 중뇌 DA 뉴런 또는 중뇌 오가노이드 + 동질 유전자 대조군. 암세포가 아닌 것 자체가 차별점.</li>
+      <li><b>측정 차원(레버 3):</b> Pt 웨이퍼에 H₂O₂·산소·(가능하면) 전기생리 전극을 함께 패턴. "산소→H₂O₂ 누출 비율"이라는 새 지표 제시.</li>
+      <li><b>발견(레버 1):</b> 변이군이 대조군보다 산화 스트레스가 높거나 회복이 느림을, 며칠~2주 연속 무표지 측정으로 처음 포착.</li>
+      <li><b>검증:</b> 센티널 차감 + 카탈레이스 소거 + HyPer 형광 교차. 도파민 퀴논 간섭까지 정량 제거.</li>
+      <li><b>개입:</b> LRRK2 억제제·항산화제로 궤적이 정상화됨을 보여 질병 맥락 완성.</li>
+    </ol>
+    <p style="font-size:.86rem;color:var(--muted)">이 패키지는 "센서 논문"이 아니라 "센서로 밝힌 중뇌 산화 스트레스 논문"이 됩니다. 그래야 15+ 저널의 질문에 답합니다.</p>
+  </div>
+  <div class="checks" style="margin-top:4px">
+    <div class="chk"><h3>현실적 단계</h3><p>1편(IF 10 안팎): 센서 자체를 Biosens. Bioelectron. 급에 먼저 확립. 2편(IF 15+): 그 센서로 밝힌 생물학 발견을 상위 저널에. 센서 검증과 발견을 분리하면 둘 다 건집니다.</p></div>
+    <div class="chk"><h3>협업이 거의 필수</h3><p>iPSC·오가노이드 배양, 파킨슨 모델 전문가와의 협업이 생물학 깊이를 줍니다. 공학 단독으로는 레버 1을 채우기 어렵습니다.</p></div>
+    <div class="chk"><h3>오가노이드는 하이리스크·하이리턴</h3><p>오가노이드 ROS 전기화학은 공백이라 성공하면 임팩트가 크지만, 신호가 작고 편차가 큽니다. 2D에서 방법을 먼저 굳히고 올라가세요.</p></div>
+    <div class="chk"><h3>IF만 보지 말기</h3><p>IF 15는 결과이지 목표가 아닙니다. "이 논문이 없었다면 몰랐을 것"을 만들면 저널은 따라옵니다. 그 질문부터 정하세요.</p></div>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">근거</span>
+  <p class="note">이 페이지는 이번 세션에서 조사한 논문들(2D 세포·나노자임·고영향 사례)과 이 분야의 일반적 출판 양상을 종합한 제 분석입니다. 특정 수치나 "빈자리" 판단은 체계적 문헌 조사(Web of Science·Scopus)로 확정하세요. 앞선 페이지들의 출처를 근거로 삼았습니다: <a href="https://claude.ai/artifact/CP6PCF8Msi4ehUGaV8DEBJ" target="_blank" rel="noopener">2D 세포 H₂O₂ 논문 정리</a>, <a href="https://claude.ai/artifact/PoMggNPwmeyjLqKa4i5FoQ" target="_blank" rel="noopener">나노자임 POCT 목록</a>, <a href="https://claude.ai/artifact/JJ64SAsPAdcKdkTRoy9agP" target="_blank" rel="noopener">새로움 전략</a>.</p>
+</section>
+
+</div>
