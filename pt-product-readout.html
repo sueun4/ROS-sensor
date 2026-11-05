@@ -1,0 +1,288 @@
+<title>Pt 반응 산물로 H₂O₂ 측정</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.go{background:var(--non-soft);color:var(--non)}
+.pill.mid{background:var(--min-soft);color:var(--min)}
+.pill.warn{background:var(--inv-soft);color:var(--inv)}
+.callout{background:var(--non-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--non);font-size:1rem}
+.callout p{font-size:.9rem}
+.formula{font-family:var(--mono);font-size:.84rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.t td.c{text-align:center;font-family:var(--mono);font-size:.8rem}
+.t td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.routes{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.route{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;border-top:4px solid var(--pb)}
+.route .n{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+.route h3{font-size:1rem}
+.route p{font-size:.87rem;color:var(--muted)}
+.route .prod{font-family:var(--mono);font-size:.78rem;color:var(--pb)}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+.scene svg{width:100%;height:auto;display:block}
+.scene{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.scene svg{min-width:560px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Product-readout concept · 2026-11 기준</span>
+  <h1>Pt 반응 산물로 H₂O₂ 측정하기</h1>
+  <p class="lede">세포가 낸 H₂O₂가 바닥 Pt에 닿아 반응하면 산물이 생깁니다. 그 산물(산소·pH·전류·전압)을 배지에서 실시간으로 읽는 방식이 가능한지, 어떤 형태가 현실적인지 평가했습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/64jymGiTnakERmXWbfmctU" target="_blank" rel="noopener">← Pt 웨이퍼 적층 설계</a> · <a href="https://claude.ai/artifact/GdskL3yPTz8ULBTokEyRA9" target="_blank" rel="noopener">IF 15 전략</a> · <a href="https://claude.ai/artifact/PRJ2dDw9HunvtYLGYzf38e" target="_blank" rel="noopener">신호와 중뇌 모델</a></p>
+  <div class="callout">
+    <h3>결론: 가능하고, 이미 다른 분야에서 쓰입니다</h3>
+    <p>Pt는 H₂O₂를 <b>산소</b>로 분해하거나(촉매), 전위를 걸면 <b>전자·산소·OH⁻</b>를 냅니다. 이 산물을 2차 센서로 읽는 방식(특히 <b>산소 측정</b>)과, 전위 없이 작동하는 <b>자가전원(연료전지형)</b> 방식이 이미 논문으로 나와 있습니다. 세포·실시간에 적용한 사례는 드물어, 당신 연구의 차별점이 될 수 있습니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">01 · Pt에서 무슨 일이</span>
+  <h2>H₂O₂가 Pt에 닿으면 생기는 산물</h2>
+  <div class="formula">촉매 분해 (전위 없이): 2 H₂O₂ → 2 H₂O + O₂↑   (Pt의 카탈레이스 유사 활성)</div>
+  <div class="formula">산화 (양전위): H₂O₂ → O₂ + 2H⁺ + 2e⁻   (전류 + O₂ + 국소 pH 하강)</div>
+  <div class="formula">환원 (음전위): H₂O₂ + 2e⁻ → 2OH⁻   (전류 + 국소 pH 상승)</div>
+  <p class="muted">즉 측정할 수 있는 "산물"은 네 가지입니다: <b>전자(전류)</b>, <b>산소(O₂)</b>, <b>pH 변화(H⁺/OH⁻)</b>, 그리고 연료전지 구성이면 <b>전압·전력</b>. 기존 암페로메트리는 이 중 전류만 씁니다. 당신 아이디어는 나머지(특히 산소·pH·전압)를 배지에서 읽자는 것입니다.</p>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 읽는 방식</span>
+  <h2>산물별 측정 경로</h2>
+  <div class="routes">
+    <div class="route">
+      <span class="n">경로 A</span>
+      <h3>산소(O₂)를 2차 전극으로</h3>
+      <p class="prod">H₂O₂ → (Pt) → O₂ → O₂ 센서</p>
+      <p>Pt가 H₂O₂를 O₂로 바꾸고, 옆의 산소 전극(Clark형·형광)이 O₂ 증가를 읽습니다. 광학 O₂ 센서로 H₂O₂를 LOD 0.17 µM까지 잰 사례가 있습니다(흐름 중 배경 O₂ 제거). 상용 Pt/Pd 촉매 + 형광 O₂막으로 실시간 측정한 사례도 있습니다.</p>
+      <span><span class="pill go">가장 현실적</span></span>
+    </div>
+    <div class="route">
+      <span class="n">경로 B</span>
+      <h3>pH 변화를 ISFET·pH 전극으로</h3>
+      <p class="prod">H₂O₂ → (Pt) → H⁺ 또는 OH⁻ → pH 센서</p>
+      <p>산화면 H⁺로 pH가 내려가고, 환원이면 OH⁻로 올라갑니다. 전극 바로 위 얇은 층에서만 유의미하고, 배지의 완충(중탄산·HEPES)이 bulk 변화를 지웁니다.</p>
+      <span><span class="pill warn">국소·완충 한계</span></span>
+    </div>
+    <div class="route">
+      <span class="n">경로 C</span>
+      <h3>자가전원(연료전지형) 전압·전류</h3>
+      <p class="prod">H₂O₂ = 연료 → 갈바닉 전류·전압</p>
+      <p>외부 전위 없이, H₂O₂가 한 전극에서 산화·다른 전극에서 환원되며 스스로 전류를 냅니다. 무막 단일 챔버 H₂O₂ 연료전지 센서가 보고되었고(LOD µM 수준), 자가전원이라 저전력·휴대형에 유리합니다.</p>
+      <span><span class="pill go">새로움·POCT 유리</span></span>
+    </div>
+    <div class="route">
+      <span class="n">경로 D</span>
+      <h3>발생기-수집기 (O₂ 재순환)</h3>
+      <p class="prod">Pt: H₂O₂→O₂, 인접 전극: O₂→환원</p>
+      <p>Pt에서 만든 O₂를 바로 옆 전극이 환원해 신호를 증폭(redox cycling). 미세 간격 전극(IDE)이 필요하지만 감도를 크게 올릴 수 있습니다.</p>
+      <span><span class="pill mid">증폭·고난도</span></span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 실현 가능성</span>
+  <h2>배지·실시간 조건에서 될까</h2>
+  <div class="scene">
+    <svg viewBox="0 0 580 200" role="img" aria-label="바닥 Pt가 세포 H2O2를 O2로 바꾸고 인접 O2 전극이 읽는 모식도">
+      <rect x="10" y="20" width="560" height="150" rx="6" fill="var(--pb-soft)" opacity=".4"/>
+      <rect x="40" y="150" width="200" height="12" fill="var(--pb)"/>
+      <text x="48" y="146" font-size="10" fill="var(--pb)" font-family="IBM Plex Mono, monospace">Pt (촉매/작업)</text>
+      <rect x="300" y="150" width="140" height="12" fill="var(--inv)"/>
+      <text x="308" y="146" font-size="10" fill="var(--inv)" font-family="IBM Plex Mono, monospace">O₂ 센서</text>
+      <g fill="var(--non)"><circle cx="80" cy="140" r="6"/><circle cx="120" cy="140" r="6"/><circle cx="160" cy="140" r="6"/><circle cx="200" cy="140" r="6"/></g>
+      <text x="90" y="118" font-size="10" fill="var(--ink)" font-family="IBM Plex Sans KR, sans-serif">세포</text>
+      <g stroke="var(--non)" stroke-width="1.5" fill="none"><path d="M140 134 V110"/><path d="M135 116 L140 108 L145 116"/></g>
+      <text x="150" y="104" font-size="9" fill="var(--non)" font-family="IBM Plex Mono, monospace">H₂O₂</text>
+      <g stroke="var(--pb)" stroke-width="1.5" fill="none"><path d="M240 150 C270 120 300 120 330 148"/><path d="M324 142 L331 149 L322 150" fill="var(--pb)"/></g>
+      <text x="268" y="116" font-size="9" fill="var(--pb)" font-family="IBM Plex Mono, monospace">O₂ 확산</text>
+      <text x="40" y="190" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">Pt가 H₂O₂를 O₂로 → 옆 전극이 O₂ 읽음 (경로 A)</text>
+    </svg>
+  </div>
+  <div class="tbox" tabindex="0">
+  <table class="t">
+    <thead><tr><th>따질 점</th><th>직접 암페로메트리(기존)</th><th>산물 측정(당신 아이디어)</th></tr></thead>
+    <tbody>
+      <tr><td>측정 대상</td><td class="c">H₂O₂ 전류</td><td class="c">O₂·pH·전압</td></tr>
+      <tr><td>간섭(도파민·AA)</td><td class="c">전위에 걸리면 큼</td><td class="c">O₂ 측정은 간섭 적음 (강점)</td></tr>
+      <tr><td>배경 문제</td><td class="c">배경 전류</td><td class="c">용존 O₂가 ~200 µM로 큼 (약점)</td></tr>
+      <tr><td>민감도 걸림돌</td><td class="c">전극 오염</td><td class="c">2 H₂O₂ → 1 O₂ (신호 절반)</td></tr>
+      <tr><td>실시간성</td><td class="c">즉시</td><td class="c">산물 확산만큼 지연</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="checks">
+    <div class="chk"><h3>가장 큰 장점: 간섭 회피</h3><p>O₂를 읽으면 도파민·아스코르브산 산화 전위를 안 거칩니다. 중뇌 세포(도파민 환경)에서 선택성 문제를 근본적으로 피할 수 있습니다. Pt를 전위 없이 촉매로만 써도 됩니다.</p></div>
+    <div class="chk"><h3>가장 큰 약점: O₂ 배경</h3><p>배지 용존 O₂가 약 200 µM인데, µM 수준 H₂O₂가 주는 O₂ 변화는 서브µM입니다. 작은 변화를 큰 배경 위에서 봐야 하고, 세포 호흡·인큐베이터 O₂ 변동이 섞입니다. 차동 O₂ 전극(촉매 있는 쪽/없는 쪽)이 필수입니다.</p></div>
+    <div class="chk"><h3>확산·희석</h3><p>산물이 배지로 퍼지면 신호가 늦고 묽어집니다. 전극 바로 위 얇은 층, 미세챔버, 또는 발생기-수집기 미세간격이 있어야 실시간성이 삽니다.</p></div>
+    <div class="chk"><h3>Pt가 H₂O₂를 소모</h3><p>Pt 촉매가 H₂O₂를 지우므로 세포 주변 H₂O₂가 낮아집니다. 측정이 곧 교란입니다. 세포 catalase와도 O₂ 생성을 두고 경쟁합니다.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">04 · 현실적 설계</span>
+  <h2>당신 Pt 웨이퍼로 해본다면</h2>
+  <div class="checks">
+    <div class="chk"><h3>가장 실현성 높은 조합</h3><p>경로 A + 차동. 한 Pt 창은 H₂O₂를 O₂로 바꾸는 촉매, 바로 옆 전극은 O₂ 측정(음전위에서 O₂ 환원). 촉매 없는 대조 O₂ 전극과 차감해 배지 O₂ 변동을 제거합니다. Pt 웨이퍼 미세패턴이 이 배치에 딱 맞습니다.</p></div>
+    <div class="chk"><h3>이중 지표의 새로움</h3><p>같은 칩에서 (1) 직접 암페로메트리 H₂O₂와 (2) 산물 O₂를 동시에 재면, 둘을 교차 검증하면서 "세포 산소 소비 대비 H₂O₂ 비율" 같은 새 지표까지 낼 수 있습니다. 이게 IF를 올리는 레버 3(새 측정 차원)입니다.</p></div>
+    <div class="chk"><h3>자가전원 변형</h3><p>경로 C로 가면 외부 전위 없이 H₂O₂를 연료로 전압을 냅니다. 전위를 안 걸어 세포에 더 순하고, 저전력 POCT로 포장할 수 있습니다. 세포·실시간 적용 사례가 드물어 참신합니다.</p></div>
+    <div class="chk"><h3>먼저 확인할 실험</h3><p>세포 없이 표준 H₂O₂를 넣어 (1) O₂ 증가가 농도에 비례하는지, (2) 배지 완충에서 pH 변화가 측정 가능한지, (3) 차동으로 배경 O₂가 지워지는지부터 봅니다. 여기서 되면 세포로 넘어갑니다.</p></div>
+  </div>
+  <div class="callout" style="margin-top:4px">
+    <h3>정리</h3>
+    <p>“산물을 배지에서 실시간으로”는 <b>원리적으로 가능하고 선례도 있습니다.</b> 핵심 승부처는 <b>O₂ 배경 제거(차동)</b>와 <b>확산 지연 최소화(미세챔버·근접 전극)</b>입니다. 중뇌 세포의 도파민 간섭을 피하는 길로서, 그리고 직접 측정과 묶은 이중 지표로서 매력이 있습니다.</p>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>Pt 촉매로 H₂O₂ 분해 후 광학 O₂ 센서로 측정(배경 O₂ 제거), LOD 0.17 µM, Sens. Actuators B (2023/24). <a href="https://graz.elsevierpure.com/files/77874170/1-s2.0-S0925400523016222-main.pdf" target="_blank" rel="noopener">PDF</a></li>
+    <li>Pt/Pd-charcoal로 H₂O₂를 O₂로 분해 후 형광 O₂막으로 실시간 측정, Analyst (2024). <a href="https://pubs.rsc.org/en/content/articlepdf/2024/AN/D4AN00975D" target="_blank" rel="noopener">RSC</a></li>
+    <li>백금족 촉매 전후 용존 O₂ 차이로 H₂O₂ 정량(특허). <a href="https://patents.google.com/patent/US11408868B2/en" target="_blank" rel="noopener">US11408868B2</a></li>
+    <li>H₂O₂ 연료전지·자가전원 센서 리뷰(무막 단일 챔버, H₂O₂가 연료). <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11852683/" target="_blank" rel="noopener">PMC11852683</a> · FePc/그래핀 자가전원 센서 <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11202192/" target="_blank" rel="noopener">PMC11202192</a> · 이중 ROS 바이오연료전지 <a href="https://pure.seoultech.ac.kr/en/publications/a-self-powered-dual-ros-sensor-adopting-biofuel-cell-platform-for/" target="_blank" rel="noopener">SeoulTech</a></li>
+  </ol>
+  <p class="note">인용 논문들은 세포·실시간이 아니라 주로 시료·흐름 측정입니다. 세포 적용과 배지 조건에서의 성능은 검증되지 않았으니 예비 실험으로 확인하세요. 설계 제안과 수치 추정은 제 분석입니다.</p>
+</section>
+
+</div>
