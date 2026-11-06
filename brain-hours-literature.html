@@ -1,0 +1,225 @@
+<title>뇌세포 수 시간 포인트별 문헌</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.t{background:var(--pb-soft);color:var(--pb)}
+.callout{background:var(--inv-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--inv);font-size:1rem}
+.callout p{font-size:.9rem}
+.pt{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;border-left:3px solid var(--inv)}
+.pt .hd{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.pt h3{font-size:1.02rem;flex:1;min-width:14ch}
+.pt .time{font-family:var(--mono);font-size:.74rem;color:var(--inv);white-space:nowrap}
+.pt .take{font-size:.87rem;color:var(--muted);background:var(--bg);border-radius:6px;padding:8px 10px}
+.paper{display:flex;flex-direction:column;gap:3px;padding:8px 0;border-top:1px dashed var(--line)}
+.paper .t2{font-size:.9rem}
+.paper .f{font-family:var(--mono);font-size:.76rem;color:var(--pb)}
+.paper a{font-size:.78rem;word-break:break-all}
+.ptlist{display:flex;flex-direction:column;gap:16px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Literature per point · brain · hours-scale · 2026-11 기준</span>
+  <h1>뇌세포 수 시간 포인트별 문헌</h1>
+  <p class="lede">앞서 정리한 "뇌세포에서 수 시간 연속이 필요한 포인트" 각각에 해당하는 문헌을, 측정된 시간 경과와 함께 찾았습니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/Ctmqm7x8Rvh992kdprDrfs" target="_blank" rel="noopener">← 장기 연속 필요 지점</a> · <a href="https://claude.ai/artifact/51mpVMpssVvYPephL8CPP8" target="_blank" rel="noopener">연속이 필요한 지점</a></p>
+  <div class="callout">
+    <h3>공통 패턴</h3>
+    <p>여섯 포인트 모두 <b>"빠른 1차 + 수 시간 뒤 느린 2차"</b> 또는 <b>"수 시간에 걸친 축적"</b>이라는 시간 구조가 문헌으로 확인됩니다. 다만 이 시간 경과를 잡은 연구는 대부분 <b>형광·종말점(여러 시점 샘플)</b>이고, 같은 세포에서 전기화학으로 연속 추적한 것은 드뭅니다 — 그 지점이 당신의 기회입니다.</p>
+  </div>
+</header>
+
+<section>
+  <div class="ptlist">
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 6 — 미세아교 활성화의 시간 경과</h3><span class="time">2–24 h, 6 h 정점</span></div>
+      <div class="take">핵심: BV-2에서 LPS 후 ROS가 서서히 올라 6시간에 정점 후 감소. NOX2 단백질도 6시간 최대. 즉각 폭발이 아니라 수 시간 전개.</div>
+      <div class="paper"><div class="t2">BV-2 미세아교, LPS(1 µg/ml) 2–24시간: ROS가 점진 증가해 6시간 정점, NOX2 단백질도 6시간 최대</div><span class="f">BMC Neuroscience 2011; 12:49</span><a href="https://link.springer.com/article/10.1186/1471-2202-12-49" target="_blank" rel="noopener">link.springer.com/article/10.1186/1471-2202-12-49</a></div>
+      <div class="paper"><div class="t2">in vivo 흑질: LPS 후 NOX2 발현·ROS 증가가 1시간부터 장기간 지속(NADPH oxidase·노화 미세아교)</div><span class="f">J. Neuroinflammation</span><a href="https://typeset.io/pdf/nadph-oxidase-and-aging-drive-microglial-activation-de1yr6alw6.pdf" target="_blank" rel="noopener">typeset.io (NADPH oxidase & aging)</a></div>
+    </div>
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 7 — 신경독소(MPP⁺·로테논)의 지연성 손상</h3><span class="time">1차 ~3 h, 2차 ~24 h</span></div>
+      <div class="take">핵심: MPP⁺가 2파 ROS 캐스케이드를 일으킴. 1차는 약 3시간의 미토콘드리아 H₂O₂, 2차는 24시간까지 더 상승(NADPH oxidase·단백질 합성 의존). 1000초로는 2파를 못 봄.</div>
+      <div class="paper"><div class="t2">흑질 도파민 세포: MPP⁺ 약 3시간 1차 미토 H₂O₂ → 24시간 2차 상승, 2차는 NOX 억제제·단백질 합성 억제로 차단</div><span class="f">PMC3198931 / J. Neuroinflammation 2011; 8:129</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3198931" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC3198931</a></div>
+      <div class="paper"><div class="t2">구획 표적 프로브: MPP⁺·로테논이 주로 미토콘드리아 기질 ROS를 올림(IMS는 아님)</div><span class="f">PMC6483187 관련</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6483187" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC6483187</a></div>
+    </div>
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 8 — 흥분독성의 2차 파동</h3><span class="time">1차 ~10 min, 2차 4–8 h</span></div>
+      <div class="take">핵심: NMDA 노출 후 초과산화가 약 10분간 올랐다 기저로, 그 뒤 4–8시간에 2차 상승(시토크롬 c 방출 후 전자전달 결함). 2차 파동이 세포사와 연결. 긴 창이라야 2차를 봄.</div>
+      <div class="paper"><div class="t2">배양 해마 뉴런: NMDA 후 초기 10분 초과산화 → 4–8시간 지연성 2차 상승, 복합체 I·III 억제제로 재현/차단</div><span class="f">J. Neurosci. 2000; 20(15):5715</span><a href="https://www.jneurosci.org/content/jneuro/20/15/5715.full.pdf" target="_blank" rel="noopener">jneurosci.org/.../20/15/5715</a></div>
+      <div class="paper"><div class="t2">HT22 산화적 글루탐산 독성: 초기 5–10배 ROS(GSH 고갈) → 미토콘드리아 유래 200–400배 폭발, 후기 폭발 차단 시 보호</div><span class="f">PMC2269520 등</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2269520" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC2269520</a></div>
+    </div>
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 9 — 허혈-재관류 전 과정</h3><span class="time">재관류 1–7 h, 2상(일)</span></div>
+      <div class="take">핵심: ROS가 재관류기에 급등(허혈 중이 아님), 이후 수 시간~일에 걸쳐 2상 패턴. 해마 CA1은 재관류 약 3시간에 초과산화 피크. 재관류 순간+지연을 함께 보려면 긴 연속.</div>
+      <div class="paper"><div class="t2">해마 CA1 전뇌허혈: 재관류 약 3시간 초과산화·NADPH oxidase 피크, 손상 지표는 1일</div><span class="f">PMC3288697</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3288697/figure/F5" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC3288697</a></div>
+      <div class="paper"><div class="t2">생체 이미징: 초과산화·하이드록실 라디칼이 재관류기에 상승(허혈 중 아님), CA1 칼슘 증가와 취약성 연결</div><span class="f">KAKEN 16390407</span><a href="https://kaken.nii.ac.jp/grant/KAKENHI-PROJECT-16390407" target="_blank" rel="noopener">kaken.nii.ac.jp/grant/16390407</a></div>
+      <div class="paper"><div class="t2">뇌허혈 ROS 2상 역할(급성 손상 vs 후기 회복), 쥐 MCAO 7일 추적</div><span class="f">J. Invest. Surg. 2019</span><a href="https://bohrium.dp.tech/paper/arxiv/813060768181256192" target="_blank" rel="noopener">bohrium.dp.tech/.../813060768181256192</a></div>
+    </div>
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 10 — 뇌의 산화환원 일주기</h3><span class="time">24 h 주기</span></div>
+      <div class="take">핵심: SCN이 약 24시간 산화환원 진동으로 자기 흥분성을 조절(K⁺ 채널 비전사적 조절). 해마 CA1은 SCN과 역위상. 뇌 특이적 일주기 H₂O₂를 실시간 전기화학으로 잰 건 없음.</div>
+      <div class="paper"><div class="t2">SCN·해마 CA1의 약 24시간 산화환원 진동, 흥분성·막전위 조절(역위상)</div><span class="f">PMC6609501 (Bothwell &amp; Gillette, FRBM 2018)</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6609501" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC6609501</a></div>
+      <div class="paper"><div class="t2">내인성 H₂O₂ 일주기 진동이 생체시계를 조절(p66Shc), 세포·간</div><span class="f">Nat. Cell Biol. 2019; PMID 31768048</span><a href="https://pubmed.ncbi.nlm.nih.gov/31768048/" target="_blank" rel="noopener">pubmed.ncbi.nlm.nih.gov/31768048</a></div>
+    </div>
+
+    <div class="pt">
+      <div class="hd"><h3>포인트 11 — 신경 분화·성숙 중 산화 변화</h3><span class="time">일 단위</span></div>
+      <div class="take">핵심: 분화 중 당분해→산화적 대사로 전환되며 ROS·항산화 능력이 바뀜. ROS 수준이 도파민 뉴런 성숙·시냅스 형성과 양의 상관. 느린 변화라 며칠 추적 필요.</div>
+      <div class="paper"><div class="t2">NSC·hiPSC: 산화적 대사 전환이 뉴런 성숙을 지지, Nrf2 매개 ROS 소거능 상승</div><span class="f">Pharmacol. Res. 2020 (Bifari 등)</span><a href="https://iris.unibs.it/retrieve/4e640d21-c52e-4b0e-8c6f-68e0f7d60d04/2020_Pharmacological%20research_NSC%20differentiation_Bifari%5bValerio-Decimo%5d_compressed.pdf" target="_blank" rel="noopener">iris.unibs.it (NSC differentiation 2020)</a></div>
+      <div class="paper"><div class="t2">hiPSC 도파민 뉴런: 미토콘드리아 결함이 성숙 저해, ROS 수준이 성숙·시냅스와 양의 상관</div><span class="f">PMC9898228</span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9898228" target="_blank" rel="noopener">pmc.ncbi.nlm.nih.gov/articles/PMC9898228</a></div>
+    </div>
+
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">정리 · 한계</span>
+  <p class="note">여섯 포인트 모두 "수 시간~일에 걸친 ROS 변화"가 문헌으로 뒷받침됩니다. 그러나 이 시간 경과를 잡은 연구는 대부분 (1) 형광 프로브(DHE·DCF·HyPer)나 (2) 여러 시점에서 세포를 나눠 측정한 종말점입니다. <b>같은 세포에서 전기화학으로 수 시간 연속 추적</b>한 뇌세포 논문은 이번 조사에서 찾지 못했습니다 — 이것이 당신 연구의 공백이자 "연속 전기화학이 필요한 이유"의 직접 근거가 됩니다. 시간 수치는 세포·독소·프로브에 따라 달라지니 인용 전 원문을 확인하세요. 포인트 번호는 이전 페이지와 맞췄습니다(6–11).</p>
+</section>
+
+</div>
