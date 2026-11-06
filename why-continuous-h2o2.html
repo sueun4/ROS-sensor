@@ -1,0 +1,321 @@
+<title>연속 H₂O₂ 모니터링이 필요한 지점</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 한 줄 서사 — 개요 → 연구 지도(시대×적용 영역 그리드) → 침습/비침습 → 비침습 전극·측정 방향 → 트렌드·공백 */
+:root{
+  --bg:#f5f7fb; --surface:#ffffff; --ink:#152033; --muted:#5a6578; --line:#d9dfea;
+  --pb:#1d3f8f;      /* Prussian Blue: H2O2 센서의 대표 촉매에서 따온 강조색 */
+  --pb-soft:#e3e9f7;
+  --inv:#a8541a;     /* 침습 */
+  --inv-soft:#f7e8dc;
+  --min:#6b4fa0;     /* 최소침습 */
+  --min-soft:#ece6f6;
+  --non:#1d7a63;     /* 비침습 */
+  --non-soft:#dcf0ea;
+  --vit:#5a6578;     /* in vitro */
+  --vit-soft:#e8ebf1;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1420; --surface:#151d2c; --ink:#e4e9f2; --muted:#9aa5b8; --line:#29344a;
+  --pb:#8fb0ff; --pb-soft:#1c2a4d;
+  --inv:#f0a46c; --inv-soft:#3a2617;
+  --min:#bba3ea; --min-soft:#2c2342;
+  --non:#6fd3b5; --non-soft:#15342c;
+  --vit:#a8b2c4; --vit-soft:#222b3b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.4rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pb)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.lede{font-size:1.05rem;color:var(--muted)}
+.chem{font-family:var(--mono);font-size:.92em}
+a{color:var(--pb)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--pb);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:28px}
+.species{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sp{font-family:var(--mono);font-size:.82rem;border:1px solid var(--line);background:var(--surface);padding:3px 10px;border-radius:4px}
+.sp b{color:var(--pb);font-weight:500}
+
+/* principle grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+
+/* map */
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+.mapbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.map{border-collapse:collapse;width:100%;min-width:920px;font-size:.82rem}
+.map th,.map td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:10px;vertical-align:top;text-align:left}
+.map th:last-child,.map td:last-child{border-right:none}
+.map tr:last-child td,.map tr:last-child th{border-bottom:none}
+.map thead th{font-family:var(--mono);font-weight:500;font-size:.75rem;color:var(--muted);background:var(--bg)}
+.map tbody th{width:150px;font-weight:700;font-size:.85rem}
+.map tbody th small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+.chip{display:block;border-left:3px solid;padding:4px 8px;margin-bottom:6px;border-radius:0 4px 4px 0;line-height:1.45}
+.chip:last-child{margin-bottom:0}
+.chip em{font-style:normal;font-family:var(--mono);font-size:.72rem;opacity:.8;display:block}
+.r-vit .chip{border-color:var(--vit);background:var(--vit-soft)}
+.r-non .chip{border-color:var(--non);background:var(--non-soft)}
+.r-min .chip{border-color:var(--min);background:var(--min-soft)}
+.r-inv .chip{border-color:var(--inv);background:var(--inv-soft)}
+.r-mat .chip{border-color:var(--pb);background:var(--pb-soft)}
+.r-vit th{color:var(--vit)} .r-non th{color:var(--non)} .r-min th{color:var(--min)} .r-inv th{color:var(--inv)} .r-mat th{color:var(--pb)}
+
+/* maturity */
+.mat{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:12px;align-items:center}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.mrow .lv{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.mrow{grid-template-columns:1fr auto}.mrow .bar{grid-column:1 / -1;grid-row:2}}
+
+/* compare */
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.side{border-top:4px solid;background:var(--surface);border-radius:0 0 8px 8px;padding:20px;display:flex;flex-direction:column;gap:12px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.side.non{border-top-color:var(--non)} .side.inv{border-top-color:var(--inv)}
+.side dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
+.side dt{color:var(--muted);font-size:.82rem;padding-top:1px}
+.side dd{margin:0;min-width:0}
+
+/* tables */
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table.t{border-collapse:collapse;width:100%;min-width:760px;font-size:.86rem}
+.t th,.t td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.t thead th{font-family:var(--mono);font-weight:500;font-size:.74rem;color:var(--muted);background:var(--bg);letter-spacing:.03em}
+.t tbody tr:last-child td{border-bottom:none}
+.t td:first-child{font-weight:700;white-space:nowrap}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 7px;border-radius:3px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag.cat{background:var(--pb-soft);color:var(--pb)}
+.tag.an{background:var(--inv-soft);color:var(--inv)}
+
+/* direction diagram */
+.dirs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.dir svg{width:100%;height:auto;display:block}
+.dir{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dir p{font-size:.87rem;color:var(--muted)}
+
+/* trends */
+.trends{display:grid;gap:0;counter-reset:t}
+.trend{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;padding:16px 0;border-top:1px solid var(--line)}
+.trend:last-child{border-bottom:1px solid var(--line)}
+.trend h3{font-size:1rem}
+.trend .sig{font-family:var(--mono);font-size:.72rem;color:var(--pb);display:block;margin-top:4px}
+@media (max-width:640px){.trend{grid-template-columns:1fr;gap:6px}}
+
+.gap{background:var(--inv-soft);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.gap h3{color:var(--inv)}
+.gap ul{margin:0;padding-left:20px}
+.gap li{margin:4px 0;max-width:80ch}
+
+.refs{font-size:.84rem;color:var(--muted)}
+.refs ol{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:4px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+</style>
+<style>
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:10px;white-space:nowrap}
+.pill.brain{background:var(--inv-soft);color:var(--inv)}
+.pill.gen{background:var(--pb-soft);color:var(--pb)}
+.callout{background:var(--non-soft);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.callout h3{color:var(--non);font-size:1rem}
+.callout p{font-size:.9rem}
+.points{display:flex;flex-direction:column;gap:14px}
+.point{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:grid;grid-template-columns:40px 1fr;gap:6px 14px;min-width:0}
+.point .n{grid-row:span 3;width:34px;height:34px;border-radius:50%;background:var(--pb);color:var(--surface);font-family:var(--mono);font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.point h3{font-size:1rem}
+.point .why{font-size:.89rem}
+.point .ev{font-size:.82rem;color:var(--muted)}
+.point .ev b{color:var(--pb)}
+.point .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.scale svg{width:100%;height:auto;display:block}
+.scale{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto}
+.scale svg{min-width:580px}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.chk{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chk h3{font-size:.95rem}
+.chk p{font-size:.86rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Why continuous H₂O₂ matters · 2026-11 기준</span>
+  <h1>연속 H₂O₂ 모니터링이 필요한 지점</h1>
+  <p class="lede">뇌세포에서, 그리고 뇌세포가 아니어도, H₂O₂를 "연속으로" 봐야만 답할 수 있는 질문들을 정리했습니다. 각 포인트는 간헐·종말점 측정으로는 원리적으로 놓치는 것입니다.</p>
+  <p style="font-size:.85rem"><a href="https://claude.ai/artifact/LkfKNQ3vG6YhVf4yc2V35N" target="_blank" rel="noopener">← 2D 연속 사례</a> · <a href="https://claude.ai/artifact/PLkSdsTbeUENxs3eqMM6Eb" target="_blank" rel="noopener">연속 vs 간헐 (뇌)</a> · <a href="https://claude.ai/artifact/8WVQgBGggH4C5Qbe9CTMhF" target="_blank" rel="noopener">뇌 ROS 지도</a></p>
+  <div class="callout">
+    <h3>한 줄로</h3>
+    <p>H₂O₂가 <b>"얼마나 있나(농도)"</b>가 아니라 <b>"어떻게 변하나(동역학)"</b>가 중요한 모든 곳에서 연속이 필요합니다. 신호 분자로서의 H₂O₂는 농도가 아니라 <b>타이밍·속도·패턴</b>으로 정보를 전달하기 때문입니다.</p>
+  </div>
+</header>
+
+<section>
+  <span class="eyebrow">시간 스케일</span>
+  <h2>H₂O₂ 사건은 여러 시간대에 걸쳐 있다</h2>
+  <div class="scale">
+    <svg viewBox="0 0 600 140" role="img" aria-label="H2O2 사건 시간대: 폭발 초, 신호 펄스 분, 약물·손상 시간, 질병·회복·일주기 일 단위">
+      <line x1="30" y1="100" x2="580" y2="100" stroke="var(--line)"/>
+      <g font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--muted)" text-anchor="middle">
+        <text x="75" y="118">초</text><text x="200" y="118">분</text><text x="330" y="118">시간</text><text x="470" y="118">일</text><text x="560" y="118">주</text>
+      </g>
+      <g font-family="IBM Plex Sans KR, sans-serif" font-size="10">
+        <rect x="45" y="78" width="80" height="16" rx="3" fill="var(--inv-soft)"/><text x="85" y="90" fill="var(--inv)" text-anchor="middle">산화 폭발</text>
+        <rect x="150" y="56" width="110" height="16" rx="3" fill="var(--min-soft)"/><text x="205" y="68" fill="var(--min)" text-anchor="middle">신호 펄스·진동</text>
+        <rect x="280" y="78" width="120" height="16" rx="3" fill="var(--pb-soft)"/><text x="340" y="90" fill="var(--pb)" text-anchor="middle">약물·손상 반응</text>
+        <rect x="410" y="56" width="160" height="16" rx="3" fill="var(--non-soft)"/><text x="490" y="68" fill="var(--non)" text-anchor="middle">질병·회복·일주기</text>
+      </g>
+      <text x="30" y="135" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">각 시간대의 사건을 보려면 그보다 촘촘한 연속 측정이 필요</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">01 · 공통 (모든 세포)</span>
+  <h2>세포 종류와 무관하게 연속이 필요한 포인트</h2>
+  <div class="points">
+
+    <div class="point">
+      <span class="n">1</span>
+      <h3>생성과 제거를 분리</h3>
+      <div class="why">같은 농도라도 "많이 만들고 많이 지우는" 세포와 "조금 만들고 조금 지우는" 세포는 완전히 다릅니다. 연속이면 생성 속도와 제거 속도를 따로 구해 이 둘을 구분합니다.</div>
+      <div class="ev"><b>근거:</b> 단일세포 연속 전기화학으로 생성·분해 속도 분리(Bozem 2018). 종말점 농도로는 불가능.</div>
+      <div class="tags"><span class="pill gen">일반</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">2</span>
+      <h3>일과성·폭발·플래시</h3>
+      <div class="why">초~분 단위로 솟았다 사라지는 사건. 자극 직후의 산화 폭발, 이동 세포의 H₂O₂ 섬광처럼, 간헐 샘플 사이에 일어나면 존재 자체를 놓칩니다.</div>
+      <div class="ev"><b>근거:</b> 이동 세포 H₂O₂ 플래시가 액틴·이동을 조율(Nat. Commun. 2025). 미토콘드리아 H₂O₂ 진동성 분출(HyPer 원조).</div>
+      <div class="tags"><span class="pill gen">일반</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">3</span>
+      <h3>"없음"의 증명</h3>
+      <div class="why">"폭발이 일어나지 않았다"는 연속으로만 증명됩니다. 종말점은 "안 본 시점에 일어났다"고 반박되니까요. 통념을 뒤집는 결과가 여기서 나옵니다.</div>
+      <div class="ev"><b>근거:</b> 인간 신경 스페로이드 허혈-재관류에서 H₂O₂ 폭발 없음을 연속 HyPer로 입증(FRBM 2023).</div>
+      <div class="tags"><span class="pill gen">일반</span><span class="pill brain">뇌 관련</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">4</span>
+      <h3>자극-반응의 타이밍·순서</h3>
+      <div class="why">약물·손상 후 H₂O₂가 언제 오르고 얼마나 빨리 회복되는지. 피크 시각·지연·회복 반감기는 약효와 독성을 가르는 정량 지표입니다. 정상·질병·회복 군 비교의 핵심.</div>
+      <div class="ev"><b>근거:</b> 약물 자극 세포 H₂O₂ 실시간 추적(여러 전기화학 논문). 세포소기관 간 반응 속도 차이(HyPer7).</div>
+      <div class="tags"><span class="pill gen">일반</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">5</span>
+      <h3>일주기·느린 리듬</h3>
+      <div class="why">H₂O₂는 약 24시간 주기로 오르내리며 생체시계와 맞물립니다. 이런 느린 리듬은 하루에 한두 번 찍어선 위상·진폭을 못 잡습니다. 여러 날 촘촘한 측정이 필요.</div>
+      <div class="ev"><b>근거:</b> N2a 신경모세포종·간에서 H₂O₂ 약 24시간 진동, 어두운 시기 시작에 피크(PMC7184292). 퍼옥시레독신 24시간 산화 주기.</div>
+      <div class="tags"><span class="pill gen">일반</span><span class="pill brain">뇌 관련</span></div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">02 · 뇌세포 특이</span>
+  <h2>뇌세포에서 특히 연속이 필요한 포인트</h2>
+  <div class="points">
+
+    <div class="point">
+      <span class="n">6</span>
+      <h3>신경 활동과 결합된 H₂O₂</h3>
+      <div class="why">뇌에서 H₂O₂는 단순 부산물이 아니라 신경전달을 조절하는 신호입니다. 발화·자극에 초~분 단위로 따라오는 H₂O₂를 보려면 그 시간 분해능의 연속 측정이 필요합니다.</div>
+      <div class="ev"><b>근거:</b> 선조체에서 H₂O₂가 도파민 방출을 억제, FSCV로 서브초 동시 측정. 세포외 H₂O₂ 반감기 약 2.2초(Redox Biology 2022).</div>
+      <div class="tags"><span class="pill brain">뇌</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">7</span>
+      <h3>미세아교-뉴런 상호작용의 전개</h3>
+      <div class="why">염증 자극 시 미세아교가 뿜은 H₂O₂가 주변 뉴런을 공격하는 과정은 시간에 걸쳐 전파됩니다. "누가 먼저, 언제, 얼마나"는 연속으로만 추적됩니다.</div>
+      <div class="ev"><b>근거:</b> 미세아교 NOX2 세포외 ROS 방출이 주변 뉴런 손상을 유발(신경염증 기전). 전파 순서는 시계열 문제.</div>
+      <div class="tags"><span class="pill brain">뇌</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">8</span>
+      <h3>서서히 진행되는 신경퇴행</h3>
+      <div class="why">파킨슨·알츠하이머 모델의 산화 스트레스는 며칠~주에 걸쳐 축적·변동합니다. 독소 노출 후 회복되는지, 악화되는지의 궤적은 여러 날 연속으로만 그려집니다.</div>
+      <div class="ev"><b>근거:</b> 환자 iPSC 변이 뉴런이 H₂O₂에 더 취약. 독소마다 사멸 경로·회복 반응이 다름. 궤적 비교가 핵심.</div>
+      <div class="tags"><span class="pill brain">뇌</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">9</span>
+      <h3>허혈-재관류 같은 급변 사건</h3>
+      <div class="why">산소 공급이 끊겼다 돌아오는 순간 ROS가 어떻게 변하는지는 분 단위로 급변합니다. 재관류 시점을 놓치면 핵심을 못 봅니다.</div>
+      <div class="ev"><b>근거:</b> 해마는 허혈에 가장 취약. 재관류 시 O₂•⁻가 허혈 때보다 큼(Cyt c 센서, 2019). 시점 포착이 결정적.</div>
+      <div class="tags"><span class="pill brain">뇌</span></div>
+    </div>
+
+    <div class="point">
+      <span class="n">10</span>
+      <h3>뇌의 산화환원 일주기</h3>
+      <div class="why">시교차상핵(SCN)·해마가 산화환원 리듬을 보이고, 이것이 막전위·흥분성에 영향을 줍니다. 뇌 특이적 일주기 H₂O₂ 리듬은 실시간으로 직접 측정된 적이 거의 없는 공백입니다.</div>
+      <div class="ev"><b>근거:</b> SCN의 자발적 산화환원 진동, 해마 CA1의 일주기 막전위 리듬(PMC6609501). 실시간 H₂O₂ 기록은 미확립.</div>
+      <div class="tags"><span class="pill brain">뇌</span><span class="pill gen">공백</span></div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">03 · 당신 연구로</span>
+  <h2>이 중 무엇을 노릴까</h2>
+  <div class="checks">
+    <div class="chk"><h3>단기(초~분): 포인트 2·6</h3><p>FSCV·빠른 암페로메트리로 자극 직후 일과성·신경활동 결합을 봅니다. 시간 분해능 승부. 전극이 빨라야 함.</p></div>
+    <div class="chk"><h3>중기(시간): 포인트 4·9</h3><p>약물·허혈 반응의 타이밍. 정상·질병·회복 군의 피크·회복 속도 비교. 당신의 3군 설계와 직결.</p></div>
+    <div class="chk"><h3>장기(일~주): 포인트 5·8·10</h3><p>신경퇴행 궤적, 일주기 리듬. 다일 연속 센서가 필요한 영역이자 공백이 가장 큰 곳. 노블티 잠재력 최고, 난이도도 최고.</p></div>
+    <div class="chk"><h3>추천 초점</h3><p>중뇌 세포 + 포인트 6·8(신경활동 결합 + 질병·회복 궤적)이 당신 설계(Pt 웨이퍼·3군·중뇌)에 가장 자연스럽고 차별적입니다.</p></div>
+  </div>
+  <div class="callout">
+    <h3>정리</h3>
+    <p>연속이 필요한 이유는 결국 하나입니다 — <b>H₂O₂의 정보는 농도가 아니라 변화에 담겨 있다.</b> 뇌세포에서는 신경활동 결합(초~분), 신경퇴행 궤적(일~주), 일주기 리듬(일)이 특히 연속을 요구하고, 이 중 일~주 단위 연속 전기화학은 아직 열린 공백입니다.</p>
+  </div>
+</section>
+
+<section class="refs">
+  <span class="eyebrow">출처</span>
+  <ol>
+    <li>단일세포 생성·분해 속도 분리(연속 전기화학), ARS (2018). <a href="https://doi.org/10.1089/ars.2016.6840" target="_blank" rel="noopener">DOI</a></li>
+    <li>이동 세포 H₂O₂ 플래시, Nat. Commun. (2025). <a href="https://www.nature.com/articles/s41467-025-62272-1" target="_blank" rel="noopener">Nature</a> · HyPer 원조 미토 분출 <a href="https://www.nature.com/articles/nmeth866" target="_blank" rel="noopener">Nat. Methods 2006</a></li>
+    <li>신경 스페로이드 허혈-재관류 H₂O₂ 폭발 없음, FRBM (2023). <a href="https://www.sciencedirect.com/science/article/abs/pii/S0891584923012017" target="_blank" rel="noopener">SD</a></li>
+    <li>선조체 H₂O₂·도파민 결합·반감기, Redox Biology (2022). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8804256" target="_blank" rel="noopener">PMC8804256</a></li>
+    <li>H₂O₂ 약 24시간 일주기 진동(N2a·간), PMC7184292. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7184292" target="_blank" rel="noopener">PMC7184292</a> · SCN·해마 산화환원 리듬 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6609501" target="_blank" rel="noopener">PMC6609501</a></li>
+    <li>허혈-재관류 O₂•⁻(해마), Biomolecules (2019). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6843313/figure/biomolecules-09-00562-f006" target="_blank" rel="noopener">PMC6843313</a> · 실시간 H₂O₂ 센서 뉴런·성상세포 적용(oROS, preprint) <a href="https://storage.prod.researchhub.com/uploads/papers/2025/11/21/2024.01.31.578117v1.full.pdf" target="_blank" rel="noopener">preprint</a></li>
+  </ol>
+  <p class="note">포인트 7·8·10의 일부는 널리 알려진 기전·현상을 바탕으로 했고 직접 실시간 H₂O₂ 측정 논문이 아닙니다(그래서 "공백"으로 표시). 검색 요약 기반이며 원문 확인을 권합니다. 연구 초점 제안은 제 분석입니다.</p>
+</section>
+
+</div>
